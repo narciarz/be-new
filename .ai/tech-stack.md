@@ -4,7 +4,7 @@ Frontend - Angular z Angular Material
 - Tailwind 4 pozwala na wygodne stylowanie aplikacji
 - Angular Material zapewnia bibliotekę dostępnych komponentów Angular, na których oprzemy UI
 
-Backend - Spring Boot + Supabase Auth + PostgreSQL
+Backend - Spring Boot + PostgreSQL
 - baza danych PostgreSQL
 - Jest rozwiązaniem open source, które można hostować lokalnie lub na własnym serwerze
 - Posiada wbudowaną autentykację użytkowników
