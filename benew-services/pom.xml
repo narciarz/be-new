@@ -10,7 +10,6 @@
 	</parent>
 	<groupId>com.narciarz</groupId>
 	<artifactId>benew-services</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>benew</name>
 	<description>Application to track current new employee progress</description>
 	<url/>
