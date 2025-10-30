@@ -1,0 +1,58 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# AI Rules for Be New
+
+Be New to aplikacja webowa upraszczająca i standaryzująca proces wdrożenia nowych pracowników w organizacji. System zapewnia centralne zarządzanie checklistami onboardingowymi, widoczność postępu dla menedżerów oraz pełną kontrolę nad szablonami zadań dla administratorów. Produkt jest dostarczany jako rozwiązanie SaaS uruchamiane w przeglądarce, z bezpiecznym logowaniem i granularnymi rolami dostępu.
+
+## Tech Stack
+
+- Spring Boot 3
+- Java 25
+- PostgreSQL 16
+- TypeScript 5
+- Angular 20
+- Angular Material
+- CSS
+
+## Project Structure
+
+When introducing changes to the project, always follow the directory structure below:
+
+Backend:
+- `./src/main/java` - Java source code
+- `./src/main/java/com/narciarz/benew/controllers` - application APIs
+- `./src/main/java/com/narciarz/benew/services` - application services
+- `./src/main/java/com/narciarz/benew/repositories` - database
+- `./src/main/java/com/narciarz/benew/models` - database entities
+- `./src/main/java/com/narciarz/benew/models/dto` - data
+- `./src/main/java/com/narciarz/benew/exceptions` - custom exceptions
+- `./src/main/java/com/narciarz/benew/config` - application configuration
+- `./src/main/resources` - application resources (e.g., application.yml, static assets
+- `./src/test/java` - Java test code
+Frontend:
+- `./benew-frontend/src` - source code
+- `./benew-frontend/src/main.ts` - Main angular bootstrap
+- `./benew-frontend/src/models` - Shared types for frontend (Entities, DTOs)
+- `./benew-frontend/src/components` - Angular Material UI
+- `./benew-frontend/src/components/shared` - Angular Material shared ui components
+- `./benew-frontend/src/services` - Services 
+- `./benew-frontend/src/services/helpers` - Helpers 
+- `./benew-frontend/src/assets` - static internal assets
+- `./benew-frontend/public` - public assets
+
+When modifying the directory structure, always update this section.
+
+## Coding practices
+
+### Guidelines for clean code
+
+- Use feedback from linters to improve the code when making changes.
+- Prioritize error handling and edge cases.
+- Handle errors and edge cases at the beginning of functions.
+- Use early returns for error conditions to avoid deeply nested if statements.
+- Place the happy path last in the function for improved readability.
+- Avoid unnecessary else statements; use if-return pattern instead.
+- Implement proper error logging and user-friendly error messages.
