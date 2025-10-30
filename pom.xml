@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.narciarz</groupId>
 	<artifactId>benew</artifactId>
-    <packaging>pom</packaging>
+	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>benew</name>
 	<description>Application to track current new employee progress</description>
@@ -30,10 +30,10 @@
 	<properties>
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 	</properties>
 	<modules>
-        <!-- <module>benew-frontend</module> -->
+        <module>benew-frontend</module>
         <module>benew-services</module>
     </modules>
 

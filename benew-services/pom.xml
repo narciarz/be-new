@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.narciarz</groupId>
 	<artifactId>benew-services</artifactId>
-	<name>benew</name>
+	<name>benew-services</name>
 	<description>Application to track current new employee progress</description>
 	<url/>
 	<licenses>
@@ -29,6 +29,11 @@
 		<java.version>25</java.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>com.narciarz</groupId>
+        	<artifactId>benew-frontend</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -62,9 +67,25 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.narciarz.benew.BenewApplication</mainClass>
+                    <excludes>
+                        <exclude>
+                            <groupId>com.narciarz</groupId>
+                            <artifactId>benew-frontend</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -79,7 +100,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.mawi</groupId>
+                                    <groupId>com.narciarz</groupId>
                                     <artifactId>benew-frontend</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
