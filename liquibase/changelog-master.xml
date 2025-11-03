@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- 
+        Liquibase Master Changelog for Be New Application
+        
+        This file references all migration files in the correct order.
+        Migrations are executed sequentially based on their timestamp prefixes.
+        
+        Migration Order:
+        1. Schema and roles setup
+        2. Core tables (app_user)
+        3. Template tables (template, template_task)
+        4. Onboarding tables (onboarding_process, onboarding_task)
+        5. Foreign key indexes
+        6. Search indexes
+        7. Composite indexes
+        
+        Each migration file contains:
+        - Detailed comments explaining purpose and design decisions
+        - Proper rollback commands
+        - Table and column comments for documentation
+        
+        Run migrations using:
+        - Liquibase CLI: liquibase update
+        - Spring Boot: auto-runs on application startup
+    -->
+
+    <!-- Migration 1: Create schema and database roles -->
+    <include file="migrations/20251103100000_create_schema_and_roles.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 2: Create app_user table -->
+    <include file="migrations/20251103100001_create_app_user_table.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 3: Create template tables -->
+    <include file="migrations/20251103100002_create_template_tables.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 4: Create onboarding tables -->
+    <include file="migrations/20251103100003_create_onboarding_tables.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 5: Create foreign key indexes -->
+    <include file="migrations/20251103100004_create_foreign_key_indexes.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 6: Create search indexes -->
+    <include file="migrations/20251103100005_create_search_indexes.sql" relativeToChangelogFile="true"/>
+    
+    <!-- Migration 7: Create composite indexes -->
+    <include file="migrations/20251103100006_create_composite_indexes.sql" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
+
