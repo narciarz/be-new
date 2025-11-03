@@ -98,9 +98,7 @@ create table benew.onboarding_process (
 
 -- table comment
 comment on table benew.onboarding_process is 
-    'Represents one employee onboarding process. ' ||
-    'Automatically created when employee account is created. ' ||
-    'Tasks are copied from template_task to onboarding_task at creation time.';
+    'Represents one employee onboarding process. Automatically created when employee account is created. Tasks are copied from template_task to onboarding_task at creation time.';
 
 -- column comments
 comment on column benew.onboarding_process.id is 
@@ -113,21 +111,16 @@ comment on column benew.onboarding_process.manager_id is
     'Foreign key to manager overseeing onboarding (benew.app_user). ON DELETE RESTRICT.';
 
 comment on column benew.onboarding_process.source_template_id is 
-    'Foreign key to template used to create this process (benew.template). ' ||
-    'Kept for audit purposes. Actual tasks are copied to onboarding_task. ON DELETE RESTRICT.';
+    'Foreign key to template used to create this process (benew.template). Kept for audit purposes. Actual tasks are copied to onboarding_task. ON DELETE RESTRICT.';
 
 comment on column benew.onboarding_process.status is 
-    'Process status: ACTIVE or ARCHIVED. ' ||
-    'ACTIVE = ongoing, ARCHIVED = completed and moved to archive. ' ||
-    'Validated in Spring application via @Enumerated(EnumType.STRING).';
+    'Process status: ACTIVE or ARCHIVED. ACTIVE = ongoing, ARCHIVED = completed and moved to archive. Validated in Spring application via @Enumerated(EnumType.STRING).';
 
 comment on column benew.onboarding_process.total_tasks_count is 
-    'Denormalized count of all tasks. Updated by application when tasks added. ' ||
-    'Enables fast progress calculation without COUNT() query.';
+    'Denormalized count of all tasks. Updated by application when tasks added. Enables fast progress calculation without COUNT() query.';
 
 comment on column benew.onboarding_process.completed_tasks_count is 
-    'Denormalized count of completed tasks. Updated by application when tasks marked done. ' ||
-    'Progress % = (completed_tasks_count / total_tasks_count) * 100.';
+    'Denormalized count of completed tasks. Updated by application when tasks marked done. Progress % = (completed_tasks_count / total_tasks_count) * 100.';
 
 comment on column benew.onboarding_process.created_at is 
     'Record creation timestamp with timezone. Managed by Spring Data JPA @CreatedDate annotation.';
@@ -180,9 +173,7 @@ create table benew.onboarding_task (
 
 -- table comment
 comment on table benew.onboarding_task is 
-    'Individual tasks for a specific onboarding process. ' ||
-    'Tasks are COPIED from template_task when process is created. ' ||
-    'Changes to template tasks do NOT affect these tasks (versioning via denormalization).';
+    'Individual tasks for a specific onboarding process. Tasks are COPIED from template_task when process is created. Changes to template tasks do NOT affect these tasks (versioning via denormalization).';
 
 -- column comments
 comment on column benew.onboarding_task.id is 
@@ -192,24 +183,19 @@ comment on column benew.onboarding_task.onboarding_process_id is
     'Foreign key to onboarding_process. One process has many tasks. ON DELETE RESTRICT.';
 
 comment on column benew.onboarding_task.title is 
-    'Task title. Copied from template_task.title at process creation. ' ||
-    'Template changes do NOT update this value.';
+    'Task title. Copied from template_task.title at process creation. Template changes do NOT update this value.';
 
 comment on column benew.onboarding_task.description is 
-    'Task description. Copied from template_task.description at process creation. ' ||
-    'Template changes do NOT update this value.';
+    'Task description. Copied from template_task.description at process creation. Template changes do NOT update this value.';
 
 comment on column benew.onboarding_task.task_order is 
     'Display order in checklist. Copied from template_task.task_order at process creation.';
 
 comment on column benew.onboarding_task.owner_role is 
-    'Role responsible for completing task: MANAGER or USER. ' ||
-    'Copied from template_task.owner_role at process creation. ' ||
-    'Validated in Spring application via @Enumerated(EnumType.STRING).';
+    'Role responsible for completing task: MANAGER or USER. Copied from template_task.owner_role at process creation. Validated in Spring application via @Enumerated(EnumType.STRING).';
 
 comment on column benew.onboarding_task.is_completed is 
-    'Task completion status. Set to true by task owner (manager or employee). ' ||
-    'Triggers update of completed_tasks_count in onboarding_process table.';
+    'Task completion status. Set to true by task owner (manager or employee). Triggers update of completed_tasks_count in onboarding_process table.';
 
 comment on column benew.onboarding_task.created_at is 
     'Record creation timestamp with timezone. Managed by Spring Data JPA @CreatedDate annotation.';

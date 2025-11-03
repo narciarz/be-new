@@ -53,9 +53,7 @@ create unique index idx_app_user_email_lower
     on benew.app_user(lower(email));
 
 comment on index benew.idx_app_user_email_lower is 
-    'Enforces case-insensitive email uniqueness. ' ||
-    'Prevents: user@example.com and User@example.com from both existing. ' ||
-    'Application must use LOWER(email) in WHERE clauses.';
+    'Enforces case-insensitive email uniqueness. Prevents: user@example.com and User@example.com from both existing. Application must use LOWER(email) in WHERE clauses.';
 
 -- index on last_name for user search and sorting
 -- optimizes queries like: "find users with last name starting with X"
@@ -64,8 +62,7 @@ create index idx_app_user_last_name
     on benew.app_user(last_name);
 
 comment on index benew.idx_app_user_last_name is 
-    'Optimizes user search by last name. ' ||
-    'Used in: admin user management, manager assignment dropdown, employee search.';
+    'Optimizes user search by last name. Used in: admin user management, manager assignment dropdown, employee search.';
 
 -- index on first_name for user search and sorting
 -- optimizes queries like: "find users with first name starting with X"
@@ -74,8 +71,7 @@ create index idx_app_user_first_name
     on benew.app_user(first_name);
 
 comment on index benew.idx_app_user_first_name is 
-    'Optimizes user search by first name. ' ||
-    'Used in: admin user management, reporting, employee search.';
+    'Optimizes user search by first name. Used in: admin user management, reporting, employee search.';
 
 -- partial index on position_name for filtering users by position
 -- partial index excludes NULLs (admins without positions)
@@ -85,9 +81,7 @@ create index idx_app_user_position_name
     where position_name is not null;
 
 comment on index benew.idx_app_user_position_name is 
-    'Optimizes filtering users by position/job title. ' ||
-    'Partial index excludes NULLs (admins). ' ||
-    'Used in: reporting, position-based user lists.';
+    'Optimizes filtering users by position/job title. Partial index excludes NULLs (admins). Used in: reporting, position-based user lists.';
 
 -- ============================================================================
 -- TEMPLATE SEARCH INDEXES
@@ -101,9 +95,7 @@ create unique index idx_template_position_name_lower
     on benew.template(lower(position_name));
 
 comment on index benew.idx_template_position_name_lower is 
-    'Enforces case-insensitive position_name uniqueness for templates. ' ||
-    'Prevents: "Software Engineer" and "software engineer" from both existing. ' ||
-    'Application must normalize (trim + toLowerCase) before insert/search.';
+    'Enforces case-insensitive position_name uniqueness for templates. Prevents: "Software Engineer" and "software engineer" from both existing. Application must normalize (trim + toLowerCase) before insert/search.';
 
 -- ============================================================================
 -- ONBOARDING_PROCESS FILTERING INDEXES
@@ -116,8 +108,7 @@ create index idx_onboarding_process_status
     on benew.onboarding_process(status);
 
 comment on index benew.idx_onboarding_process_status is 
-    'Optimizes filtering processes by status (ACTIVE vs ARCHIVED). ' ||
-    'Critical for: manager dashboard (show only active), archive view.';
+    'Optimizes filtering processes by status (ACTIVE vs ARCHIVED). Critical for: manager dashboard (show only active), archive view.';
 
 --rollback drop index if exists benew.idx_onboarding_process_status;
 --rollback drop index if exists benew.idx_template_position_name_lower;

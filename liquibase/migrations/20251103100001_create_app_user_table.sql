@@ -89,8 +89,7 @@ create table benew.app_user (
 
 -- table comment explaining purpose and usage
 comment on table benew.app_user is 
-    'Central user table storing all system users with three roles: ADMIN, MANAGER, USER. ' ||
-    'Implements self-referencing manager-employee hierarchy via manager_id.';
+    'Central user table storing all system users with three roles: ADMIN, MANAGER, USER. Implements self-referencing manager-employee hierarchy via manager_id.';
 
 -- column comments for documentation
 comment on column benew.app_user.id is 
@@ -103,8 +102,7 @@ comment on column benew.app_user.password_hash is
     'BCrypt password hash. Never store plain text passwords. Managed by Spring Security.';
 
 comment on column benew.app_user.role is 
-    'User role: ADMIN, MANAGER, or USER. Validated in Spring application via @Enumerated(EnumType.STRING). ' ||
-    'No database-level CHECK constraint per architectural decision.';
+    'User role: ADMIN, MANAGER, or USER. Validated in Spring application via @Enumerated(EnumType.STRING). No database-level CHECK constraint per architectural decision.';
 
 comment on column benew.app_user.first_name is 
     'User first name. Required for all users.';
@@ -113,13 +111,10 @@ comment on column benew.app_user.last_name is
     'User last name. Required for all users. Indexed for search performance.';
 
 comment on column benew.app_user.position_name is 
-    'Job title/position. Used to assign appropriate onboarding template when creating new employee. ' ||
-    'NULL for administrators. Application normalizes value (trim + toLowerCase) before save/search.';
+    'Job title/position. Used to assign appropriate onboarding template when creating new employee. NULL for administrators. Application normalizes value (trim + toLowerCase) before save/search.';
 
 comment on column benew.app_user.manager_id is 
-    'Self-referencing foreign key to manager (another user in this table). ' ||
-    'NULL for administrators and top-level managers without supervisors. ' ||
-    'ON DELETE RESTRICT prevents deletion of managers with assigned employees.';
+    'Self-referencing foreign key to manager (another user in this table). NULL for administrators and top-level managers without supervisors. ON DELETE RESTRICT prevents deletion of managers with assigned employees.';
 
 comment on column benew.app_user.created_at is 
     'Record creation timestamp with timezone. Managed by Spring Data JPA @CreatedDate annotation.';

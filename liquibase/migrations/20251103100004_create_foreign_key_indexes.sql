@@ -49,9 +49,7 @@ create index idx_app_user_manager_id
     where manager_id is not null;
 
 comment on index benew.idx_app_user_manager_id is 
-    'Optimizes queries for manager-employee hierarchy. ' ||
-    'Partial index excludes NULLs (admins/top-level managers). ' ||
-    'Improves: finding employees of manager, manager deletion validation.';
+    'Optimizes queries for manager-employee hierarchy. Partial index excludes NULLs (admins/top-level managers). Improves: finding employees of manager, manager deletion validation.';
 
 -- index on template_task.template_id for loading template tasks
 -- optimizes queries like: "find all tasks for template X"
@@ -60,8 +58,7 @@ create index idx_template_task_template_id
     on benew.template_task(template_id);
 
 comment on index benew.idx_template_task_template_id is 
-    'Optimizes loading all tasks for a template. ' ||
-    'Critical for: template detail view, CSV import, template deletion validation.';
+    'Optimizes loading all tasks for a template. Critical for: template detail view, CSV import, template deletion validation.';
 
 -- index on onboarding_process.user_id for user's processes lookup
 -- optimizes queries like: "find all onboarding processes for user X"
@@ -70,8 +67,7 @@ create index idx_onboarding_process_user_id
     on benew.onboarding_process(user_id);
 
 comment on index benew.idx_onboarding_process_user_id is 
-    'Optimizes finding all onboarding processes for a user. ' ||
-    'Used for: employee viewing own progress, user deletion validation.';
+    'Optimizes finding all onboarding processes for a user. Used for: employee viewing own progress, user deletion validation.';
 
 -- index on onboarding_process.manager_id for manager dashboard
 -- optimizes queries like: "find all processes managed by manager X"
@@ -80,8 +76,7 @@ create index idx_onboarding_process_manager_id
     on benew.onboarding_process(manager_id);
 
 comment on index benew.idx_onboarding_process_manager_id is 
-    'CRITICAL for manager dashboard performance. ' ||
-    'Optimizes: finding all employees onboarding under manager X, manager deletion validation.';
+    'CRITICAL for manager dashboard performance. Optimizes: finding all employees onboarding under manager X, manager deletion validation.';
 
 -- index on onboarding_process.source_template_id for template usage tracking
 -- optimizes queries like: "find all processes created from template X"
@@ -90,8 +85,7 @@ create index idx_onboarding_process_template_id
     on benew.onboarding_process(source_template_id);
 
 comment on index benew.idx_onboarding_process_template_id is 
-    'Optimizes finding all processes created from a template. ' ||
-    'Used for: template usage statistics, template deletion validation.';
+    'Optimizes finding all processes created from a template. Used for: template usage statistics, template deletion validation.';
 
 -- index on onboarding_task.onboarding_process_id for loading checklist
 -- optimizes queries like: "find all tasks for process X"
@@ -100,8 +94,7 @@ create index idx_onboarding_task_process_id
     on benew.onboarding_task(onboarding_process_id);
 
 comment on index benew.idx_onboarding_task_process_id is 
-    'CRITICAL for checklist display performance. ' ||
-    'Optimizes: loading all tasks for onboarding process, process deletion validation.';
+    'CRITICAL for checklist display performance. Optimizes: loading all tasks for onboarding process, process deletion validation.';
 
 --rollback drop index if exists benew.idx_onboarding_task_process_id;
 --rollback drop index if exists benew.idx_onboarding_process_template_id;

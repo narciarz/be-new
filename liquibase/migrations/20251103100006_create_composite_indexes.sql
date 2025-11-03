@@ -60,10 +60,7 @@ create index idx_onboarding_process_manager_status
     on benew.onboarding_process(manager_id, status);
 
 comment on index benew.idx_onboarding_process_manager_status is 
-    'CRITICAL composite index for manager dashboard. ' ||
-    'Optimizes: WHERE manager_id = ? AND status = ''ACTIVE''. ' ||
-    'Replaces need for bitmap scan combining separate indexes. ' ||
-    'Query: "Show all active onboarding processes for my employees".';
+    'CRITICAL composite index for manager dashboard. Optimizes: WHERE manager_id = ? AND status = ''ACTIVE''. Replaces need for bitmap scan combining separate indexes. Query: "Show all active onboarding processes for my employees".';
 
 -- ============================================================================
 -- TEMPLATE TASK ORDERING INDEX
@@ -77,10 +74,7 @@ create index idx_template_task_template_order
     on benew.template_task(template_id, task_order);
 
 comment on index benew.idx_template_task_template_order is 
-    'Optimizes loading template tasks in display order. ' ||
-    'Query: WHERE template_id = ? ORDER BY task_order. ' ||
-    'Index provides pre-sorted results, eliminates explicit sort step. ' ||
-    'Used in: template detail view, template edit, CSV export.';
+    'Optimizes loading template tasks in display order. Query: WHERE template_id = ? ORDER BY task_order. Index provides pre-sorted results, eliminates explicit sort step. Used in: template detail view, template edit, CSV export.';
 
 -- ============================================================================
 -- ONBOARDING TASK ORDERING INDEX
@@ -94,10 +88,7 @@ create index idx_onboarding_task_process_order
     on benew.onboarding_task(onboarding_process_id, task_order);
 
 comment on index benew.idx_onboarding_task_process_order is 
-    'CRITICAL composite index for checklist display. ' ||
-    'Optimizes: WHERE onboarding_process_id = ? ORDER BY task_order. ' ||
-    'Index provides pre-sorted results, eliminates explicit sort step. ' ||
-    'Used in: employee checklist view, manager checklist review.';
+    'CRITICAL composite index for checklist display. Optimizes: WHERE onboarding_process_id = ? ORDER BY task_order. Index provides pre-sorted results, eliminates explicit sort step. Used in: employee checklist view, manager checklist review.';
 
 --rollback drop index if exists benew.idx_onboarding_task_process_order;
 --rollback drop index if exists benew.idx_template_task_template_order;
