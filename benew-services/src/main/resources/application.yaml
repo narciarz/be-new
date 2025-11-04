@@ -1,3 +1,10 @@
 spring:
   application:
     name: benew
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: benew
+  jpa:
+    hibernate:
+      ddl-auto: validate
