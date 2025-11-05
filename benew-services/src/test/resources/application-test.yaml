@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: benew-test
+  datasource:
+    hikari:
+      schema: public
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+  liquibase:
+    enabled: false
+
