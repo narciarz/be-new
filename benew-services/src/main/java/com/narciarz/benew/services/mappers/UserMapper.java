@@ -4,7 +4,10 @@ import com.narciarz.benew.models.AppUser;
 import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
  * MapStruct mapper for converting between AppUser entity and User DTOs.
