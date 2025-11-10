@@ -146,7 +146,7 @@ class UserServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getEmail()).isEqualTo("test@example.com");
+        assertThat(result.getContent().getFirst().getEmail()).isEqualTo("test@example.com");
         verify(userRepository).findAll(pageable);
         verify(userMapper).toResponseDto(testUser);
     }
