@@ -1,0 +1,29 @@
+package com.narciarz.benew.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+/**
+ * Security configuration for the application.
+ * 
+ * <p>Provides beans for password encoding and will be extended later
+ * with JWT authentication and role-based access control configuration.</p>
+ */
+@Configuration
+public class SecurityConfig {
+    
+    /**
+     * Provides a BCrypt password encoder bean.
+     * 
+     * <p>BCrypt is a strong hashing algorithm with built-in salting,
+     * appropriate for secure password storage.</p>
+     * 
+     * @return BCrypt password encoder
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
