@@ -126,6 +126,75 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Handles TemplateNotFoundException - returns HTTP 404 Not Found.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 404 status
+     */
+    @ExceptionHandler(TemplateNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleTemplateNotFoundException(
+            TemplateNotFoundException ex, HttpServletRequest request) {
+        log.warn("Template not found: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    
+    /**
+     * Handles DuplicatePositionNameException - returns HTTP 400 Bad Request.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler(DuplicatePositionNameException.class)
+    public ResponseEntity<ErrorResponseDto> handleDuplicatePositionNameException(
+            DuplicatePositionNameException ex, HttpServletRequest request) {
+        log.warn("Duplicate position name error: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+    
+    /**
+     * Handles TemplateDeletionException - returns HTTP 400 Bad Request.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler(TemplateDeletionException.class)
+    public ResponseEntity<ErrorResponseDto> handleTemplateDeletionException(
+            TemplateDeletionException ex, HttpServletRequest request) {
+        log.warn("Template deletion error: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+    
+    /**
      * Handles Bean Validation errors - returns HTTP 400 Bad Request with field-level errors.
      * 
      * <p>Triggered when {@code @Valid} annotation fails on request DTOs.
