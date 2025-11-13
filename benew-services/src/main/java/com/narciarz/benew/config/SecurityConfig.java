@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
+@Profile({"test"}) // Activate this permissive configuration in test profile
 public class SecurityConfig {
     
     /**

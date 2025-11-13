@@ -14,4 +14,6 @@ spring:
         default_schema: public
   liquibase:
     enabled: false
-
+logging:
+  level:
+      com.narciarz.benew: debug

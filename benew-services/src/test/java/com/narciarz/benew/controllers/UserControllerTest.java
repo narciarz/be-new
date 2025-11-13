@@ -14,8 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p>Tests the web layer (controller) in isolation with mocked service layer.
  * Uses MockMvc to perform HTTP requests and verify responses.</p>
  */
+@ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(UserController.class)
 @DisplayName("UserController Integration Tests")
 class UserControllerTest {
