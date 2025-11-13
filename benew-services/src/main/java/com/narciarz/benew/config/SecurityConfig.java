@@ -18,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-@Profile({"test"}) // Activate this permissive configuration in test profile
 public class SecurityConfig {
     
     /**
@@ -35,6 +34,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Profile({"test"}) // Activate this permissive configuration in test profile
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
