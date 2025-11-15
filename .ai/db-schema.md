@@ -555,3 +555,4 @@ WHERE manager_id = :managerId
 **Wersja**: 1.0  
 **Status**: Gotowy do implementacji
 
+
