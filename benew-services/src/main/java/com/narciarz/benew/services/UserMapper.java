@@ -5,6 +5,7 @@ import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
 import org.mapstruct.*;
+import org.mapstruct.ReportingPolicy;
 
 /**
  * MapStruct mapper for converting between AppUser entity and User DTOs.
@@ -21,7 +22,7 @@ import org.mapstruct.*;
  *   <li>Password hashing is handled by the service layer</li>
  * </ul>
  */
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
     
     /**
