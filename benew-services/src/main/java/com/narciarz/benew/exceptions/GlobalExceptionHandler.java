@@ -195,6 +195,29 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Handles TemplateTaskNotFoundException - returns HTTP 404 Not Found.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 404 status
+     */
+    @ExceptionHandler(TemplateTaskNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleTemplateTaskNotFoundException(
+            TemplateTaskNotFoundException ex, HttpServletRequest request) {
+        log.warn("Template task not found: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    
+    /**
      * Handles Bean Validation errors - returns HTTP 400 Bad Request with field-level errors.
      * 
      * <p>Triggered when {@code @Valid} annotation fails on request DTOs.
