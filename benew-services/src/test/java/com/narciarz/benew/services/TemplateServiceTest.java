@@ -9,7 +9,6 @@ import com.narciarz.benew.models.dto.UpdateTemplateRequestDto;
 import com.narciarz.benew.models.dto.TemplateResponseDto;
 import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.TemplateTaskRepository;
-import com.narciarz.benew.services.mappers.TemplateMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

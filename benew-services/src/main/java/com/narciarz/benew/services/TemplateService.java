@@ -9,7 +9,6 @@ import com.narciarz.benew.models.dto.UpdateTemplateRequestDto;
 import com.narciarz.benew.models.dto.TemplateResponseDto;
 import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.TemplateTaskRepository;
-import com.narciarz.benew.services.mappers.TemplateMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

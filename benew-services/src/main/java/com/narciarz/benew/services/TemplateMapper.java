@@ -1,13 +1,10 @@
-package com.narciarz.benew.services.mappers;
+package com.narciarz.benew.services;
 
 import com.narciarz.benew.models.Template;
 import com.narciarz.benew.models.dto.CreateTemplateRequestDto;
 import com.narciarz.benew.models.dto.UpdateTemplateRequestDto;
 import com.narciarz.benew.models.dto.TemplateResponseDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 /**
  * MapStruct mapper for converting between Template entity and Template DTOs.
@@ -23,7 +20,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
  *   <li>ID and timestamps are managed by JPA and excluded from request mappings</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TemplateMapper {
     
     /**
