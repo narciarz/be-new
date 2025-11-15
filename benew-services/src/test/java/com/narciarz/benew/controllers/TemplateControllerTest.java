@@ -8,6 +8,7 @@ import com.narciarz.benew.models.dto.CreateTemplateRequestDto;
 import com.narciarz.benew.models.dto.UpdateTemplateRequestDto;
 import com.narciarz.benew.models.dto.TemplateResponseDto;
 import com.narciarz.benew.services.TemplateService;
+import com.narciarz.benew.services.TemplateTaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,9 @@ class TemplateControllerTest {
     
     @MockitoBean
     private TemplateService templateService;
-    
+    @MockitoBean
+    private TemplateTaskService templateTaskService;
+
     private TemplateResponseDto templateResponseDto;
     private CreateTemplateRequestDto createTemplateDto;
     private UpdateTemplateRequestDto updateTemplateDto;

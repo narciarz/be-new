@@ -9,6 +9,8 @@ import com.narciarz.benew.models.dto.UpdateTemplateTaskRequestDto;
 import com.narciarz.benew.models.dto.TemplateTaskResponseDto;
 import com.narciarz.benew.services.TemplateService;
 import com.narciarz.benew.services.TemplateTaskService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,30 +28,20 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Web layer slice test for template task endpoints in {@link TemplateController}.
+ * Integration tests for TemplateController template task endpoints using @WebMvcTest.
  * 
- * <p>Uses {@code @WebMvcTest} to test only the web layer (controller) in isolation
- * without loading the full application context. Service dependencies are mocked
- * with {@code @MockBean}.</p>
- * 
- * <p>Tests cover:</p>
- * <ul>
- *   <li>GET /api/templates/{templateId}/tasks - retrieve tasks</li>
- *   <li>POST /api/templates/{templateId}/tasks - create task</li>
- *   <li>PUT /api/templates/{templateId}/tasks/{taskId} - update task</li>
- *   <li>DELETE /api/templates/{templateId}/tasks/{taskId} - delete task</li>
- *   <li>Validation and error handling scenarios</li>
- * </ul>
+ * <p>Tests the web layer (controller) in isolation with mocked service layer.
+ * Uses MockMvc to perform HTTP requests and verify responses.</p>
  */
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(TemplateController.class)
+@DisplayName("TemplateController Template Task Integration Tests")
 class TemplateTaskControllerTest {
     
     @Autowired
@@ -64,78 +56,95 @@ class TemplateTaskControllerTest {
     @MockitoBean
     private TemplateTaskService templateTaskService;
     
-    private static final UUID TEMPLATE_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
-    private static final UUID TASK_ID = UUID.fromString("660e8400-e29b-41d4-a716-446655440000");
+    private UUID testTemplateId;
+    private UUID testTaskId;
+    private TemplateTaskResponseDto taskResponseDto;
     
-    // ==================== GET /api/templates/{templateId}/tasks ====================
-    
-    @Test
-    void shouldReturnTasksWhenTemplateExists() throws Exception {
-        // Given
-        TemplateTaskResponseDto task1 = createTaskResponseDto(
-                TASK_ID, 
-                TEMPLATE_ID, 
-                "Complete paperwork", 
+    @BeforeEach
+    void setUp() {
+        testTemplateId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        testTaskId = UUID.fromString("660e8400-e29b-41d4-a716-446655440000");
+        
+        taskResponseDto = createTaskResponseDto(
+                testTaskId,
+                testTemplateId,
+                "Complete paperwork",
                 "Fill out all HR forms",
                 1,
                 TaskOwnerRole.USER
         );
-        
+    }
+    
+    // ========== GET /api/templates/{templateId}/tasks Tests ==========
+    
+    @Test
+    @DisplayName("GET /api/templates/{templateId}/tasks - should return tasks when template exists")
+    void getTasksForTemplate_ShouldReturnTasks_WhenTemplateExists() throws Exception {
+        // Arrange
         TemplateTaskResponseDto task2 = createTaskResponseDto(
                 UUID.randomUUID(), 
-                TEMPLATE_ID, 
+                testTemplateId, 
                 "Setup workstation", 
                 "Configure laptop and accounts",
                 2,
                 TaskOwnerRole.MANAGER
         );
         
-        List<TemplateTaskResponseDto> tasks = Arrays.asList(task1, task2);
-        when(templateTaskService.getAllTasksForTemplate(TEMPLATE_ID)).thenReturn(tasks);
+        List<TemplateTaskResponseDto> tasks = Arrays.asList(taskResponseDto, task2);
+        when(templateTaskService.getAllTasksForTemplate(testTemplateId)).thenReturn(tasks);
         
-        // When & Then
-        mockMvc.perform(get("/api/templates/{templateId}/tasks", TEMPLATE_ID))
+        // Act & Assert
+        mockMvc.perform(get("/api/templates/{templateId}/tasks", testTemplateId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(TASK_ID.toString()))
+                .andExpect(jsonPath("$[0].id").value(testTaskId.toString()))
                 .andExpect(jsonPath("$[0].title").value("Complete paperwork"))
                 .andExpect(jsonPath("$[0].taskOrder").value(1))
                 .andExpect(jsonPath("$[0].ownerRole").value("USER"))
                 .andExpect(jsonPath("$[1].title").value("Setup workstation"))
                 .andExpect(jsonPath("$[1].taskOrder").value(2))
                 .andExpect(jsonPath("$[1].ownerRole").value("MANAGER"));
+        
+        verify(templateTaskService).getAllTasksForTemplate(testTemplateId);
     }
     
     @Test
-    void shouldReturnEmptyListWhenTemplateHasNoTasks() throws Exception {
-        // Given
-        when(templateTaskService.getAllTasksForTemplate(TEMPLATE_ID))
+    @DisplayName("GET /api/templates/{templateId}/tasks - should return empty list when template has no tasks")
+    void getTasksForTemplate_ShouldReturnEmptyList_WhenTemplateHasNoTasks() throws Exception {
+        // Arrange
+        when(templateTaskService.getAllTasksForTemplate(testTemplateId))
                 .thenReturn(Arrays.asList());
         
-        // When & Then
-        mockMvc.perform(get("/api/templates/{templateId}/tasks", TEMPLATE_ID))
+        // Act & Assert
+        mockMvc.perform(get("/api/templates/{templateId}/tasks", testTemplateId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+        
+        verify(templateTaskService).getAllTasksForTemplate(testTemplateId);
     }
     
     @Test
-    void shouldReturn404WhenTemplateNotFoundForGetTasks() throws Exception {
-        // Given
-        when(templateTaskService.getAllTasksForTemplate(TEMPLATE_ID))
-                .thenThrow(new TemplateNotFoundException(TEMPLATE_ID));
+    @DisplayName("GET /api/templates/{templateId}/tasks - should return 404 when template not found")
+    void getTasksForTemplate_ShouldReturn404_WhenTemplateNotFound() throws Exception {
+        // Arrange
+        when(templateTaskService.getAllTasksForTemplate(testTemplateId))
+                .thenThrow(new TemplateNotFoundException(testTemplateId));
         
-        // When & Then
-        mockMvc.perform(get("/api/templates/{templateId}/tasks", TEMPLATE_ID))
+        // Act & Assert
+        mockMvc.perform(get("/api/templates/{templateId}/tasks", testTemplateId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"));
+        
+        verify(templateTaskService).getAllTasksForTemplate(testTemplateId);
     }
     
-    // ==================== POST /api/templates/{templateId}/tasks ====================
+    // ========== POST /api/templates/{templateId}/tasks Tests ==========
     
     @Test
-    void shouldCreateTaskWhenValidRequest() throws Exception {
-        // Given
+    @DisplayName("POST /api/templates/{templateId}/tasks - should create task when valid request")
+    void createTask_ShouldCreateSuccessfully() throws Exception {
+        // Arrange
         CreateTemplateTaskRequestDto request = new CreateTemplateTaskRequestDto(
                 "Complete paperwork",
                 "Fill out all HR forms",
@@ -143,52 +152,49 @@ class TemplateTaskControllerTest {
                 TaskOwnerRole.USER
         );
         
-        TemplateTaskResponseDto response = createTaskResponseDto(
-                TASK_ID, 
-                TEMPLATE_ID, 
-                request.getTitle(),
-                request.getDescription(),
-                request.getTaskOrder(),
-                request.getOwnerRole()
-        );
+        when(templateTaskService.createTask(eq(testTemplateId), any(CreateTemplateTaskRequestDto.class)))
+                .thenReturn(taskResponseDto);
         
-        when(templateTaskService.createTask(eq(TEMPLATE_ID), any(CreateTemplateTaskRequestDto.class)))
-                .thenReturn(response);
-        
-        // When & Then
-        mockMvc.perform(post("/api/templates/{templateId}/tasks", TEMPLATE_ID)
+        // Act & Assert
+        mockMvc.perform(post("/api/templates/{templateId}/tasks", testTemplateId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.id").value(TASK_ID.toString()))
-                .andExpect(jsonPath("$.templateId").value(TEMPLATE_ID.toString()))
+                .andExpect(jsonPath("$.id").value(testTaskId.toString()))
+                .andExpect(jsonPath("$.templateId").value(testTemplateId.toString()))
                 .andExpect(jsonPath("$.title").value("Complete paperwork"))
                 .andExpect(jsonPath("$.description").value("Fill out all HR forms"))
                 .andExpect(jsonPath("$.taskOrder").value(1))
                 .andExpect(jsonPath("$.ownerRole").value("USER"));
+        
+        verify(templateTaskService).createTask(eq(testTemplateId), any(CreateTemplateTaskRequestDto.class));
     }
     
     @Test
-    void shouldReturn400WhenCreateTaskWithMissingRequiredFields() throws Exception {
-        // Given - missing title, taskOrder, and ownerRole
+    @DisplayName("POST /api/templates/{templateId}/tasks - should return 400 when missing required fields")
+    void createTask_ShouldReturn400_ForMissingRequiredFields() throws Exception {
+        // Arrange
         String invalidRequest = """
                 {
                     "description": "Some description"
                 }
                 """;
         
-        // When & Then
-        mockMvc.perform(post("/api/templates/{templateId}/tasks", TEMPLATE_ID)
+        // Act & Assert
+        mockMvc.perform(post("/api/templates/{templateId}/tasks", testTemplateId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
+        
+        verify(templateTaskService, never()).createTask(any(), any());
     }
     
     @Test
-    void shouldReturn400WhenCreateTaskWithBlankTitle() throws Exception {
-        // Given
+    @DisplayName("POST /api/templates/{templateId}/tasks - should return 400 when title is blank")
+    void createTask_ShouldReturn400_ForBlankTitle() throws Exception {
+        // Arrange
         CreateTemplateTaskRequestDto request = new CreateTemplateTaskRequestDto(
                 "   ",  // blank title
                 "Description",
@@ -196,17 +202,20 @@ class TemplateTaskControllerTest {
                 TaskOwnerRole.USER
         );
         
-        // When & Then
-        mockMvc.perform(post("/api/templates/{templateId}/tasks", TEMPLATE_ID)
+        // Act & Assert
+        mockMvc.perform(post("/api/templates/{templateId}/tasks", testTemplateId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
+        
+        verify(templateTaskService, never()).createTask(any(), any());
     }
     
     @Test
-    void shouldReturn404WhenCreateTaskForNonExistentTemplate() throws Exception {
-        // Given
+    @DisplayName("POST /api/templates/{templateId}/tasks - should return 404 when template not found")
+    void createTask_ShouldReturn404_WhenTemplateNotFound() throws Exception {
+        // Arrange
         CreateTemplateTaskRequestDto request = new CreateTemplateTaskRequestDto(
                 "Complete paperwork",
                 "Fill out all HR forms",
@@ -214,22 +223,25 @@ class TemplateTaskControllerTest {
                 TaskOwnerRole.USER
         );
         
-        when(templateTaskService.createTask(eq(TEMPLATE_ID), any(CreateTemplateTaskRequestDto.class)))
-                .thenThrow(new TemplateNotFoundException(TEMPLATE_ID));
+        when(templateTaskService.createTask(eq(testTemplateId), any(CreateTemplateTaskRequestDto.class)))
+                .thenThrow(new TemplateNotFoundException(testTemplateId));
         
-        // When & Then
-        mockMvc.perform(post("/api/templates/{templateId}/tasks", TEMPLATE_ID)
+        // Act & Assert
+        mockMvc.perform(post("/api/templates/{templateId}/tasks", testTemplateId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
+        
+        verify(templateTaskService).createTask(eq(testTemplateId), any(CreateTemplateTaskRequestDto.class));
     }
     
-    // ==================== PUT /api/templates/{templateId}/tasks/{taskId} ====================
+    // ========== PUT /api/templates/{templateId}/tasks/{taskId} Tests ==========
     
     @Test
-    void shouldUpdateTaskWhenValidRequest() throws Exception {
-        // Given
+    @DisplayName("PUT /api/templates/{templateId}/tasks/{taskId} - should update task when valid request")
+    void updateTask_ShouldUpdateSuccessfully() throws Exception {
+        // Arrange
         UpdateTemplateTaskRequestDto request = new UpdateTemplateTaskRequestDto(
                 "Updated title",
                 "Updated description",
@@ -237,41 +249,44 @@ class TemplateTaskControllerTest {
                 TaskOwnerRole.MANAGER
         );
         
-        TemplateTaskResponseDto response = createTaskResponseDto(
-                TASK_ID,
-                TEMPLATE_ID,
-                request.getTitle(),
-                request.getDescription(),
-                request.getTaskOrder(),
-                request.getOwnerRole()
+        TemplateTaskResponseDto updatedTask = createTaskResponseDto(
+                testTaskId,
+                testTemplateId,
+                "Updated title",
+                "Updated description",
+                2,
+                TaskOwnerRole.MANAGER
         );
         
         when(templateTaskService.updateTask(
-                eq(TEMPLATE_ID), 
-                eq(TASK_ID), 
+                eq(testTemplateId), 
+                eq(testTaskId), 
                 any(UpdateTemplateTaskRequestDto.class)
-        )).thenReturn(response);
+        )).thenReturn(updatedTask);
         
-        // When & Then
-        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID)
+        // Act & Assert
+        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(TASK_ID.toString()))
+                .andExpect(jsonPath("$.id").value(testTaskId.toString()))
                 .andExpect(jsonPath("$.title").value("Updated title"))
                 .andExpect(jsonPath("$.taskOrder").value(2))
                 .andExpect(jsonPath("$.ownerRole").value("MANAGER"));
+        
+        verify(templateTaskService).updateTask(eq(testTemplateId), eq(testTaskId), any(UpdateTemplateTaskRequestDto.class));
     }
     
     @Test
-    void shouldSupportPartialUpdateForTask() throws Exception {
-        // Given - only updating title
+    @DisplayName("PUT /api/templates/{templateId}/tasks/{taskId} - should support partial update")
+    void updateTask_ShouldSupportPartialUpdate() throws Exception {
+        // Arrange
         UpdateTemplateTaskRequestDto request = new UpdateTemplateTaskRequestDto();
         request.setTitle("Only title updated");
         
-        TemplateTaskResponseDto response = createTaskResponseDto(
-                TASK_ID,
-                TEMPLATE_ID,
+        TemplateTaskResponseDto partialUpdate = createTaskResponseDto(
+                testTaskId,
+                testTemplateId,
                 "Only title updated",
                 "Original description",
                 1,
@@ -279,75 +294,89 @@ class TemplateTaskControllerTest {
         );
         
         when(templateTaskService.updateTask(
-                eq(TEMPLATE_ID), 
-                eq(TASK_ID), 
+                eq(testTemplateId), 
+                eq(testTaskId), 
                 any(UpdateTemplateTaskRequestDto.class)
-        )).thenReturn(response);
+        )).thenReturn(partialUpdate);
         
-        // When & Then
-        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID)
+        // Act & Assert
+        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Only title updated"));
+        
+        verify(templateTaskService).updateTask(eq(testTemplateId), eq(testTaskId), any(UpdateTemplateTaskRequestDto.class));
     }
     
     @Test
-    void shouldReturn404WhenUpdateNonExistentTask() throws Exception {
-        // Given
+    @DisplayName("PUT /api/templates/{templateId}/tasks/{taskId} - should return 404 when task not found")
+    void updateTask_ShouldReturn404_WhenTaskNotFound() throws Exception {
+        // Arrange
         UpdateTemplateTaskRequestDto request = new UpdateTemplateTaskRequestDto();
         request.setTitle("Updated title");
         
         when(templateTaskService.updateTask(
-                eq(TEMPLATE_ID), 
-                eq(TASK_ID), 
+                eq(testTemplateId), 
+                eq(testTaskId), 
                 any(UpdateTemplateTaskRequestDto.class)
-        )).thenThrow(new TemplateTaskNotFoundException(TASK_ID, TEMPLATE_ID));
+        )).thenThrow(new TemplateTaskNotFoundException(testTaskId, testTemplateId));
         
-        // When & Then
-        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID)
+        // Act & Assert
+        mockMvc.perform(put("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
+        
+        verify(templateTaskService).updateTask(eq(testTemplateId), eq(testTaskId), any(UpdateTemplateTaskRequestDto.class));
     }
     
-    // ==================== DELETE /api/templates/{templateId}/tasks/{taskId} ====================
+    // ========== DELETE /api/templates/{templateId}/tasks/{taskId} Tests ==========
     
     @Test
-    void shouldDeleteTaskWhenExists() throws Exception {
-        // Given - service method returns successfully (void)
+    @DisplayName("DELETE /api/templates/{templateId}/tasks/{taskId} - should delete task successfully")
+    void deleteTask_ShouldDeleteSuccessfully() throws Exception {
+        // Arrange - service method returns successfully (void)
         
-        // When & Then
-        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID))
+        // Act & Assert
+        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId))
                 .andExpect(status().isNoContent());
+        
+        verify(templateTaskService).deleteTask(testTemplateId, testTaskId);
     }
     
     @Test
-    void shouldReturn404WhenDeleteNonExistentTask() throws Exception {
-        // Given
-        doThrow(new TemplateTaskNotFoundException(TASK_ID, TEMPLATE_ID))
-                .when(templateTaskService).deleteTask(TEMPLATE_ID, TASK_ID);
+    @DisplayName("DELETE /api/templates/{templateId}/tasks/{taskId} - should return 404 when task not found")
+    void deleteTask_ShouldReturn404_WhenTaskNotFound() throws Exception {
+        // Arrange
+        doThrow(new TemplateTaskNotFoundException(testTaskId, testTemplateId))
+                .when(templateTaskService).deleteTask(testTemplateId, testTaskId);
         
-        // When & Then
-        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID))
+        // Act & Assert
+        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
+        
+        verify(templateTaskService).deleteTask(testTemplateId, testTaskId);
     }
     
     @Test
-    void shouldReturn404WhenDeleteTaskFromNonExistentTemplate() throws Exception {
-        // Given
-        doThrow(new TemplateNotFoundException(TEMPLATE_ID))
-                .when(templateTaskService).deleteTask(TEMPLATE_ID, TASK_ID);
+    @DisplayName("DELETE /api/templates/{templateId}/tasks/{taskId} - should return 404 when template not found")
+    void deleteTask_ShouldReturn404_WhenTemplateNotFound() throws Exception {
+        // Arrange
+        doThrow(new TemplateNotFoundException(testTemplateId))
+                .when(templateTaskService).deleteTask(testTemplateId, testTaskId);
         
-        // When & Then
-        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", TEMPLATE_ID, TASK_ID))
+        // Act & Assert
+        mockMvc.perform(delete("/api/templates/{templateId}/tasks/{taskId}", testTemplateId, testTaskId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
+        
+        verify(templateTaskService).deleteTask(testTemplateId, testTaskId);
     }
     
-    // ==================== Helper Methods ====================
+    // ========== Helper Methods ==========
     
     private TemplateTaskResponseDto createTaskResponseDto(
             UUID id, 
