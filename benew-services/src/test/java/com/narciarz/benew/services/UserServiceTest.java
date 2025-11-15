@@ -10,7 +10,6 @@ import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
 import com.narciarz.benew.repositories.UserRepository;
-import com.narciarz.benew.services.mappers.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

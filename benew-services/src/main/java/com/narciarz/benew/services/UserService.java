@@ -10,7 +10,6 @@ import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
 import com.narciarz.benew.repositories.UserRepository;
-import com.narciarz.benew.services.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -55,7 +54,7 @@ public class UserService {
      * @param passwordEncoder encoder for password hashing
      */
     public UserService(UserRepository userRepository, 
-                      UserMapper userMapper, 
+                      UserMapper userMapper,
                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;

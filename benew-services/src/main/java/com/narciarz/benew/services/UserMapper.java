@@ -1,13 +1,11 @@
-package com.narciarz.benew.services.mappers;
+package com.narciarz.benew.services;
 
 import com.narciarz.benew.models.AppUser;
 import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
+import org.mapstruct.ReportingPolicy;
 
 /**
  * MapStruct mapper for converting between AppUser entity and User DTOs.
@@ -24,7 +22,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
  *   <li>Password hashing is handled by the service layer</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
     
     /**

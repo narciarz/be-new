@@ -6,6 +6,7 @@ Frontend - Angular z Angular Material
 
 Backend - Spring Boot + PostgreSQL
 - baza danych PostgreSQL
+- mapowanie DTO z entity za pomocą mapstruct
 - Jest rozwiązaniem open source, które można hostować lokalnie lub na własnym serwerze
 - Posiada wbudowaną autentykację użytkowników
 
