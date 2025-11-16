@@ -76,7 +76,7 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(getSigningKey())
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
         
         log.debug("Generated JWT token for user: {} (expires at: {})", user.getEmail(), expiryDate);

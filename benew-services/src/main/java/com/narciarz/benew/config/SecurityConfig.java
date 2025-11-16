@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -92,14 +93,18 @@ public class SecurityConfig {
     /**
      * Provides JWT decoder for OAuth2 Resource Server.
      * 
-     * <p>Uses the same secret key as JwtService for token validation.</p>
+     * <p>Uses the same secret key and algorithm (HS256) as JwtService for token validation.
+     * It's critical that both the token generator and decoder use the same algorithm.</p>
      * 
-     * @return JWT decoder
+     * @return JWT decoder configured for HS256
      */
     @Bean
     public JwtDecoder jwtDecoder() {
         SecretKey secretKey = jwtService.getSigningKey();
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+        return NimbusJwtDecoder
+                .withSecretKey(secretKey)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
     }
     
     /**
