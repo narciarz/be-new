@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -334,6 +335,39 @@ public class GlobalExceptionHandler {
         );
         
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+    
+    /**
+     * Handles malformed JSON requests - returns HTTP 400 Bad Request.
+     * 
+     * <p>Triggered when the request body contains invalid JSON that cannot be parsed.
+     * This is a client-side error indicating the request syntax is incorrect.</p>
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException ex, HttpServletRequest request) {
+        log.warn("Malformed JSON request to: {}", request.getRequestURI());
+        
+        String message = "Malformed JSON request";
+        
+        // Try to extract more specific message from the exception
+        if (ex.getMessage() != null && ex.getMessage().contains("JSON parse error")) {
+            message = "Invalid JSON format in request body";
+        }
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     
     /**
