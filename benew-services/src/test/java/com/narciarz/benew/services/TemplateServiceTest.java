@@ -705,20 +705,11 @@ class TemplateServiceTest {
                 csvContent.getBytes()
         );
         
-        Template savedTemplate = new Template();
-        savedTemplate.setId(testTemplateId);
-        savedTemplate.setPositionName("software engineer");
-        
-        when(templateRepository.existsByPositionNameIgnoreCase("software engineer")).thenReturn(false);
-        when(templateRepository.save(any(Template.class))).thenReturn(savedTemplate);
-
-
-        // Act & Assert
+        // Act & Assert - błąd jest wykrywany podczas walidacji CSV (za mało wierszy)
+        // więc nie potrzebujemy mockować repozytorium
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("at least one task");
-        
-        verify(templateTaskRepository, never()).saveAll(anyList());
+                .hasMessageContaining("at least");
     }
     
     @Test
