@@ -218,6 +218,52 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Handles OnboardingProcessNotFoundException - returns HTTP 404 Not Found.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 404 status
+     */
+    @ExceptionHandler(OnboardingProcessNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleOnboardingProcessNotFoundException(
+            OnboardingProcessNotFoundException ex, HttpServletRequest request) {
+        log.warn("Onboarding process not found: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    
+    /**
+     * Handles OnboardingProcessDeletionException - returns HTTP 400 Bad Request.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler(OnboardingProcessDeletionException.class)
+    public ResponseEntity<ErrorResponseDto> handleOnboardingProcessDeletionException(
+            OnboardingProcessDeletionException ex, HttpServletRequest request) {
+        log.warn("Onboarding process deletion error: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+    
+    /**
      * Handles Bean Validation errors - returns HTTP 400 Bad Request with field-level errors.
      * 
      * <p>Triggered when {@code @Valid} annotation fails on request DTOs.
