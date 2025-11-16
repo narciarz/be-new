@@ -295,13 +295,15 @@ public class TemplateService {
                     .withSeparator(',')
                     .withIgnoreQuotations(false)
                     .build();
-            
-            CSVReader csvReader = new CSVReaderBuilder(reader)
+
+            List<String[]> rows;
+            try (CSVReader csvReader = new CSVReaderBuilder(reader)
                     .withCSVParser(parser)
-                    .build();
-            
-            List<String[]> rows = csvReader.readAll();
-            
+                    .build()) {
+
+                rows = csvReader.readAll();
+            }
+
             // Validate minimum rows (position header, position value, task header, at least 1 task)
             if (rows.size() < 4) {
                 throw new CsvImportException(
@@ -461,10 +463,10 @@ public class TemplateService {
         // Check required columns (case-insensitive)
         String[] requiredColumns = {"title", "description", "task_order", "owner_role"};
         for (int i = 0; i < requiredColumns.length; i++) {
-            if (i >= header.length || !header[i].trim().equalsIgnoreCase(requiredColumns[i])) {
+            if (!header[i].trim().equalsIgnoreCase(requiredColumns[i])) {
                 throw new CsvImportException(
                     String.format("Column %d must be '%s', found: '%s'", 
-                        i + 1, requiredColumns[i], i < header.length ? header[i] : "missing")
+                        i + 1, requiredColumns[i], header[i])
                 );
             }
         }
@@ -509,7 +511,7 @@ public class TemplateService {
         }
         
         // Parse task order (required, must be positive integer)
-        Integer taskOrder;
+        int taskOrder;
         try {
             taskOrder = Integer.parseInt(taskOrderStr);
             if (taskOrder <= 0) {
@@ -555,7 +557,7 @@ public class TemplateService {
      * @return true if row is empty or contains only empty strings
      */
     private boolean isEmptyRow(String[] row) {
-        if (row == null || row.length == 0) {
+        if (row == null) {
             return true;
         }
         
