@@ -1,5 +1,7 @@
 package com.narciarz.benew.controllers;
 
+import com.narciarz.benew.exceptions.OnboardingProcessNotFoundException;
+import com.narciarz.benew.exceptions.OnboardingTaskNotFoundException;
 import com.narciarz.benew.models.dto.OnboardingTaskResponseDto;
 import com.narciarz.benew.models.dto.UpdateOnboardingTaskRequestDto;
 import com.narciarz.benew.services.OnboardingTaskService;
