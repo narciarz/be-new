@@ -165,9 +165,12 @@ public class JwtService {
     /**
      * Gets the signing key for JWT operations.
      * 
+     * <p>Exposed as public to allow SecurityConfig to configure
+     * Spring Security's JWT decoder with the same secret key.</p>
+     * 
      * @return secret key for signing
      */
-    private SecretKey getSigningKey() {
+    public SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
