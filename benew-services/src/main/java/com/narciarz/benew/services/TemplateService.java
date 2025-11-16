@@ -1,22 +1,38 @@
 package com.narciarz.benew.services;
 
+import com.narciarz.benew.exceptions.CsvImportException;
 import com.narciarz.benew.exceptions.DuplicatePositionNameException;
 import com.narciarz.benew.exceptions.TemplateDeletionException;
 import com.narciarz.benew.exceptions.TemplateNotFoundException;
+import com.narciarz.benew.models.TaskOwnerRole;
 import com.narciarz.benew.models.Template;
+import com.narciarz.benew.models.TemplateTask;
 import com.narciarz.benew.models.dto.CreateTemplateRequestDto;
 import com.narciarz.benew.models.dto.UpdateTemplateRequestDto;
 import com.narciarz.benew.models.dto.TemplateResponseDto;
+import com.narciarz.benew.models.dto.TemplateImportResponseDto;
 import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.TemplateTaskRepository;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service layer for template management operations.
@@ -238,6 +254,318 @@ public class TemplateService {
      */
     private String normalizePositionName(String positionName) {
         return positionName.trim().toLowerCase();
+    }
+    
+    /**
+     * Imports a template with tasks from a CSV file.
+     * 
+     * <p>CSV format expected:</p>
+     * <ul>
+     *   <li>First line: "position_name"</li>
+     *   <li>Second line: actual position name value</li>
+     *   <li>Third line: "title,description,task_order,owner_role" (header)</li>
+     *   <li>Subsequent lines: task data rows</li>
+     * </ul>
+     * 
+     * <p>Validation includes:</p>
+     * <ul>
+     *   <li>File presence and non-empty check</li>
+     *   <li>CSV structure validation</li>
+     *   <li>Position name uniqueness</li>
+     *   <li>Task data validation (required fields, data types)</li>
+     * </ul>
+     * 
+     * <p>All operations are transactional - if any part fails, entire import is rolled back.</p>
+     * 
+     * @param file the CSV file to import
+     * @return import summary with created template ID and task count
+     * @throws CsvImportException if file is invalid or has format errors
+     * @throws DuplicatePositionNameException if position name already exists
+     */
+    @Transactional
+    public TemplateImportResponseDto importTemplateFromCsv(MultipartFile file) {
+        log.info("Starting CSV import for template");
+        
+        // Validate file presence and type
+        validateCsvFile(file);
+        
+        try (Reader reader = new InputStreamReader(file.getInputStream())) {
+            // Parse CSV with proper configuration
+            CSVParser parser = new CSVParserBuilder()
+                    .withSeparator(',')
+                    .withIgnoreQuotations(false)
+                    .build();
+            
+            CSVReader csvReader = new CSVReaderBuilder(reader)
+                    .withCSVParser(parser)
+                    .build();
+            
+            List<String[]> rows = csvReader.readAll();
+            
+            // Validate minimum rows (position header, position value, task header, at least 1 task)
+            if (rows.size() < 4) {
+                throw new CsvImportException(
+                    "CSV file must contain at least 4 rows: position_name header, position value, task header, and at least one task");
+            }
+            
+            // Extract and validate position name
+            String positionName = extractPositionName(rows);
+            
+            // Validate position name uniqueness
+            String normalizedName = normalizePositionName(positionName);
+            if (templateRepository.existsByPositionNameIgnoreCase(normalizedName)) {
+                log.warn("Attempt to import template with duplicate position name: {}", normalizedName);
+                throw new DuplicatePositionNameException(normalizedName);
+            }
+            
+            // Create template
+            Template template = new Template();
+            template.setPositionName(normalizedName);
+            Template savedTemplate = templateRepository.save(template);
+            log.info("Created template with id: {} for position: {}", savedTemplate.getId(), normalizedName);
+            
+            // Extract and validate task header
+            int taskHeaderIndex = 2;
+            String[] taskHeader = rows.get(taskHeaderIndex);
+            validateTaskHeader(taskHeader);
+            
+            // Parse and create tasks
+            List<TemplateTask> tasks = new ArrayList<>();
+            for (int i = taskHeaderIndex + 1; i < rows.size(); i++) {
+                String[] row = rows.get(i);
+                
+                // Skip empty rows
+                if (isEmptyRow(row)) {
+                    continue;
+                }
+                
+                TemplateTask task = parseTaskFromRow(row, savedTemplate, i + 1);
+                tasks.add(task);
+            }
+            
+            // Validate at least one task
+            if (tasks.isEmpty()) {
+                throw new CsvImportException("CSV file must contain at least one task");
+            }
+            
+            // Save all tasks
+            List<TemplateTask> savedTasks = templateTaskRepository.saveAll(tasks);
+            log.info("Successfully imported {} tasks for template {}", savedTasks.size(), savedTemplate.getId());
+            
+            // Prepare response
+            List<UUID> taskIds = savedTasks.stream()
+                    .map(TemplateTask::getId)
+                    .collect(Collectors.toList());
+            
+            String message = String.format(
+                "Successfully imported template '%s' with %d task(s)", 
+                positionName, 
+                savedTasks.size()
+            );
+            
+            return new TemplateImportResponseDto(
+                savedTemplate.getId(),
+                positionName,
+                savedTasks.size(),
+                taskIds,
+                message
+            );
+            
+        } catch (IOException e) {
+            log.error("Error reading CSV file: {}", e.getMessage());
+            throw new CsvImportException("Failed to read CSV file: " + e.getMessage(), e);
+        } catch (CsvException e) {
+            log.error("Error parsing CSV file: {}", e.getMessage());
+            throw new CsvImportException("Failed to parse CSV file: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Validates the uploaded CSV file.
+     * 
+     * @param file the file to validate
+     * @throws CsvImportException if file is invalid
+     */
+    private void validateCsvFile(MultipartFile file) {
+        // Check file presence
+        if (file == null || file.isEmpty()) {
+            throw new CsvImportException("CSV file is required and cannot be empty");
+        }
+        
+        // Check file name
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".csv")) {
+            throw new CsvImportException("File must be a CSV file with .csv extension");
+        }
+        
+        // Check file size (max 5MB)
+        long maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.getSize() > maxSize) {
+            throw new CsvImportException(
+                String.format("File size exceeds maximum allowed size of %d MB", maxSize / (1024 * 1024))
+            );
+        }
+        
+        log.debug("CSV file validation passed: {}", originalFilename);
+    }
+    
+    /**
+     * Extracts position name from CSV rows.
+     * 
+     * @param rows all CSV rows
+     * @return position name
+     * @throws CsvImportException if position name is invalid
+     */
+    private String extractPositionName(List<String[]> rows) {
+        // First row should be "position_name" header
+        String[] firstRow = rows.get(0);
+        if (firstRow.length == 0 || !firstRow[0].trim().equalsIgnoreCase("position_name")) {
+            throw new CsvImportException(
+                "First row must contain 'position_name' header, found: " + 
+                (firstRow.length > 0 ? firstRow[0] : "empty")
+            );
+        }
+        
+        // Second row should contain the actual position name
+        String[] secondRow = rows.get(1);
+        if (secondRow.length == 0 || secondRow[0] == null || secondRow[0].trim().isEmpty()) {
+            throw new CsvImportException("Position name value is required in second row");
+        }
+        
+        String positionName = secondRow[0].trim();
+        
+        // Validate position name length
+        if (positionName.length() > 50) {
+            throw new CsvImportException(
+                "Position name exceeds maximum length of 50 characters: " + positionName
+            );
+        }
+        
+        log.debug("Extracted position name: {}", positionName);
+        return positionName;
+    }
+    
+    /**
+     * Validates task header row.
+     * 
+     * @param header the header row
+     * @throws CsvImportException if header is invalid
+     */
+    private void validateTaskHeader(String[] header) {
+        if (header.length < 4) {
+            throw new CsvImportException(
+                "Task header must contain at least 4 columns: title, description, task_order, owner_role"
+            );
+        }
+        
+        // Check required columns (case-insensitive)
+        String[] requiredColumns = {"title", "description", "task_order", "owner_role"};
+        for (int i = 0; i < requiredColumns.length; i++) {
+            if (i >= header.length || !header[i].trim().equalsIgnoreCase(requiredColumns[i])) {
+                throw new CsvImportException(
+                    String.format("Column %d must be '%s', found: '%s'", 
+                        i + 1, requiredColumns[i], i < header.length ? header[i] : "missing")
+                );
+            }
+        }
+        
+        log.debug("Task header validation passed");
+    }
+    
+    /**
+     * Parses a task from a CSV row.
+     * 
+     * @param row the CSV row
+     * @param template the parent template
+     * @param rowNumber the row number (for error messages)
+     * @return parsed TemplateTask
+     * @throws CsvImportException if row data is invalid
+     */
+    private TemplateTask parseTaskFromRow(String[] row, Template template, int rowNumber) {
+        if (row.length < 4) {
+            throw new CsvImportException(
+                String.format("Row %d must contain at least 4 columns (title, description, task_order, owner_role)", 
+                    rowNumber)
+            );
+        }
+        
+        // Extract fields
+        String title = row[0] != null ? row[0].trim() : "";
+        String description = row[1] != null ? row[1].trim() : "";
+        String taskOrderStr = row[2] != null ? row[2].trim() : "";
+        String ownerRoleStr = row[3] != null ? row[3].trim() : "";
+        
+        // Validate title (required)
+        if (title.isEmpty()) {
+            throw new CsvImportException(
+                String.format("Row %d: title is required", rowNumber)
+            );
+        }
+        
+        if (title.length() > 255) {
+            throw new CsvImportException(
+                String.format("Row %d: title exceeds maximum length of 255 characters", rowNumber)
+            );
+        }
+        
+        // Parse task order (required, must be positive integer)
+        Integer taskOrder;
+        try {
+            taskOrder = Integer.parseInt(taskOrderStr);
+            if (taskOrder <= 0) {
+                throw new CsvImportException(
+                    String.format("Row %d: task_order must be a positive integer, found: %d", 
+                        rowNumber, taskOrder)
+                );
+            }
+        } catch (NumberFormatException e) {
+            throw new CsvImportException(
+                String.format("Row %d: task_order must be a valid integer, found: '%s'", 
+                    rowNumber, taskOrderStr)
+            );
+        }
+        
+        // Parse owner role (required, must be MANAGER or USER)
+        TaskOwnerRole ownerRole;
+        try {
+            ownerRole = TaskOwnerRole.valueOf(ownerRoleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new CsvImportException(
+                String.format("Row %d: owner_role must be either 'MANAGER' or 'USER', found: '%s'", 
+                    rowNumber, ownerRoleStr)
+            );
+        }
+        
+        // Create task
+        TemplateTask task = new TemplateTask();
+        task.setTemplate(template);
+        task.setTitle(title);
+        task.setDescription(description.isEmpty() ? null : description);
+        task.setTaskOrder(taskOrder);
+        task.setOwnerRole(ownerRole);
+        
+        log.debug("Parsed task from row {}: {}", rowNumber, title);
+        return task;
+    }
+    
+    /**
+     * Checks if a CSV row is empty.
+     * 
+     * @param row the row to check
+     * @return true if row is empty or contains only empty strings
+     */
+    private boolean isEmptyRow(String[] row) {
+        if (row == null || row.length == 0) {
+            return true;
+        }
+        
+        for (String cell : row) {
+            if (cell != null && !cell.trim().isEmpty()) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
 
