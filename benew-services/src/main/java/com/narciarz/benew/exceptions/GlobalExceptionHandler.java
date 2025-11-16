@@ -310,6 +310,33 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Handles InvalidCredentialsException - returns HTTP 401 Unauthorized.
+     * 
+     * <p>Thrown when user authentication fails due to invalid email or password.
+     * For security reasons, the error message is intentionally generic to prevent
+     * user enumeration attacks.</p>
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 401 status
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidCredentialsException(
+            InvalidCredentialsException ex, HttpServletRequest request) {
+        log.warn("Authentication failed for request to: {}", request.getRequestURI());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+    
+    /**
      * Handles Bean Validation errors - returns HTTP 400 Bad Request with field-level errors.
      * 
      * <p>Triggered when {@code @Valid} annotation fails on request DTOs.

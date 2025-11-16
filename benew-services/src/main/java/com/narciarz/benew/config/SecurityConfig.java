@@ -33,13 +33,55 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configures Spring Security filter chain.
+     * 
+     * <p>Security configuration:</p>
+     * <ul>
+     *   <li>CSRF disabled (appropriate for stateless JWT authentication)</li>
+     *   <li>Publicly accessible endpoints: /auth/login, /swagger-ui/**, /v3/api-docs/**</li>
+     *   <li>All other endpoints require authentication (to be enforced with JWT filter)</li>
+     * </ul>
+     * 
+     * <p>Note: In test profile, all requests are permitted for easier testing.</p>
+     * 
+     * @param http HttpSecurity configuration
+     * @return configured security filter chain
+     * @throws Exception if configuration fails
+     */
     @Bean
     @Profile({"test"}) // Activate this permissive configuration in test profile
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
+                );
+        return http.build();
+    }
+    
+    /**
+     * Configures Spring Security filter chain for non-test profiles.
+     * 
+     * <p>Allows public access to authentication endpoints and API documentation,
+     * while requiring authentication for all other endpoints.</p>
+     * 
+     * @param http HttpSecurity configuration
+     * @return configured security filter chain
+     * @throws Exception if configuration fails
+     */
+    @Bean
+    @Profile({"!test"}) // Activate for all profiles except test
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }

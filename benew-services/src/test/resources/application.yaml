@@ -19,3 +19,6 @@ spring:
 logging:
   level:
       com.narciarz.benew: debug
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdPbmx5Tm90U2VjdXJlRm9yUHJvZHVjdGlvbg==
+  expiration: 3600000
