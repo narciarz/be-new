@@ -5,6 +5,10 @@ import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
 import com.narciarz.benew.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +28,15 @@ import java.util.UUID;
  * <p>Provides HTTP endpoints for CRUD operations on users. Handles routing
  * and request/response mapping while delegating business logic to {@link UserService}.</p>
  * 
- * <p>All endpoints will be secured with JWT authentication (to be implemented).
- * Role-based access control will restrict operations based on user roles (ADMIN, MANAGER, USER).</p>
+ * <p>All endpoints are secured with JWT authentication.
+ * Role-based access control restricts operations based on user roles (ADMIN, MANAGER, USER).</p>
  * 
  * <p>Base path: {@code /api/users}</p>
  */
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "User management endpoints")
+@SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
     
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
@@ -61,7 +67,7 @@ public class UserController {
      * <ul>
      *   <li>page - page number (default: 0)</li>
      *   <li>size - page size (default: 20)</li>
-     *   <li>sort - sort criteria (default: lastName,asc)</li>
+     *   <li>sort - sort criteria (default: lastName,asc). Examples: "lastName,asc" or "email,desc"</li>
      * </ul>
      * 
      * @param role optional role filter
@@ -72,11 +78,20 @@ public class UserController {
      * @return page of user response DTOs
      */
     @GetMapping
+    @Operation(
+        summary = "Get all users",
+        description = "Retrieves paginated list of users with optional filtering by role, manager, position, or last name"
+    )
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(
+            @Parameter(description = "Filter by user role (ADMIN, MANAGER, USER)")
             @RequestParam(required = false) UserRole role,
+            @Parameter(description = "Filter by manager ID")
             @RequestParam(required = false) UUID managerId,
+            @Parameter(description = "Search by position name (partial match)")
             @RequestParam(required = false) String position,
+            @Parameter(description = "Search by last name (partial match)")
             @RequestParam(required = false) String lastName,
+            @Parameter(hidden = true)
             @PageableDefault(size = 20, sort = "lastName", direction = Sort.Direction.ASC) Pageable pageable) {
         
         log.debug("GET /api/users - role: {}, managerId: {}, position: {}, lastName: {}, pageable: {}",

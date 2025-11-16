@@ -6,9 +6,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Security configuration for the application.
@@ -19,6 +21,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    /**
+     * Constructor injection of JWT authentication filter.
+     * 
+     * @param jwtAuthenticationFilter filter for JWT token validation
+     */
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
     
     /**
      * Provides a BCrypt password encoder bean.
@@ -63,8 +76,14 @@ public class SecurityConfig {
     /**
      * Configures Spring Security filter chain for non-test profiles.
      * 
-     * <p>Allows public access to authentication endpoints and API documentation,
-     * while requiring authentication for all other endpoints.</p>
+     * <p>Security configuration:</p>
+     * <ul>
+     *   <li>CSRF disabled (stateless JWT authentication)</li>
+     *   <li>Session management: STATELESS (no HTTP sessions)</li>
+     *   <li>Public endpoints: /auth/login, Swagger UI, API docs</li>
+     *   <li>All other endpoints require JWT authentication</li>
+     *   <li>JWT filter added before UsernamePasswordAuthenticationFilter</li>
+     * </ul>
      * 
      * @param http HttpSecurity configuration
      * @return configured security filter chain
@@ -75,6 +94,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/login",
@@ -82,7 +103,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
         return http.build();
     }
 }
