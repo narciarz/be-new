@@ -6,6 +6,7 @@ import com.narciarz.benew.models.dto.TemplateResponseDto;
 import com.narciarz.benew.models.dto.CreateTemplateTaskRequestDto;
 import com.narciarz.benew.models.dto.UpdateTemplateTaskRequestDto;
 import com.narciarz.benew.models.dto.TemplateTaskResponseDto;
+import com.narciarz.benew.models.dto.TemplateImportResponseDto;
 import com.narciarz.benew.services.TemplateService;
 import com.narciarz.benew.services.TemplateTaskService;
 import jakarta.validation.Valid;
@@ -15,8 +16,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -184,6 +187,69 @@ public class TemplateController {
         log.info("DELETE /api/templates/{} - deleting template", templateId);
         templateService.deleteTemplate(templateId);
         return ResponseEntity.noContent().build();
+    }
+    
+    /**
+     * POST /api/templates/import - Imports a template with tasks from CSV file.
+     * 
+     * <p>Allows administrators to quickly create a new onboarding template by uploading
+     * a CSV file containing the template information and associated tasks.</p>
+     * 
+     * <p>CSV file format requirements:</p>
+     * <ul>
+     *   <li>First row must contain the position name (column: position_name)</li>
+     *   <li>Subsequent rows contain tasks with columns: title, description, task_order, owner_role</li>
+     *   <li>Required columns: position_name (first row), title, task_order, owner_role</li>
+     *   <li>Optional columns: description</li>
+     *   <li>owner_role must be either MANAGER or USER</li>
+     *   <li>task_order must be a positive integer</li>
+     * </ul>
+     * 
+     * <p>Example CSV format:</p>
+     * <pre>
+     * position_name
+     * Software Engineer
+     * title,description,task_order,owner_role
+     * Setup workstation,Install required software and tools,1,USER
+     * Meet the team,Introduction meeting with team members,2,MANAGER
+     * Review codebase,Familiarize with main repositories,3,USER
+     * </pre>
+     * 
+     * <p>Validation includes:</p>
+     * <ul>
+     *   <li>File presence and non-empty check</li>
+     *   <li>CSV format validation</li>
+     *   <li>Required columns presence</li>
+     *   <li>Data type validation (task_order as integer, owner_role as enum)</li>
+     *   <li>Position name uniqueness check</li>
+     * </ul>
+     * 
+     * <p>All operations are transactional - if any task fails to import,
+     * the entire import is rolled back.</p>
+     * 
+     * <p><strong>Security:</strong> This endpoint is restricted to ADMIN role only.</p>
+     * 
+     * @param file CSV file containing template and tasks data
+     * @return import summary with created template ID, position name, and number of imported tasks (HTTP 201 Created)
+     * @throws com.narciarz.benew.exceptions.CsvImportException if file is invalid, missing, or has format errors (400)
+     * @throws com.narciarz.benew.exceptions.DuplicatePositionNameException if position name already exists (400)
+     */
+    @PostMapping(path = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<TemplateImportResponseDto> importTemplateFromCsv(
+            @RequestParam("file") MultipartFile file) {
+        log.info("POST /api/templates/import - importing template from CSV file: {}", 
+                file != null ? file.getOriginalFilename() : "null");
+        
+        TemplateImportResponseDto importResult = templateService.importTemplateFromCsv(file);
+        
+        // Build Location header pointing to the created template
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/templates/{id}")
+                .buildAndExpand(importResult.getTemplateId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(importResult);
     }
     
     // ==================== Template Task Endpoints ====================

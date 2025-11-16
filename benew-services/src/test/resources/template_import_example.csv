@@ -1,0 +1,11 @@
+position_name
+Software Engineer
+title,description,task_order,owner_role
+Setup workstation,Install required software and development tools,1,USER
+Complete IT security training,Watch security videos and pass the quiz,2,USER
+Meet the team,Introduction meeting with team members and manager,3,MANAGER
+Setup development environment,Configure IDE and clone repositories,4,USER
+Review codebase,Familiarize yourself with main repositories and architecture,5,USER
+First code review,Submit first pull request for review,6,USER
+Complete HR onboarding,Fill out necessary paperwork and benefits enrollment,7,MANAGER
+

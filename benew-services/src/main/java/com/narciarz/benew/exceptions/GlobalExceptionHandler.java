@@ -195,6 +195,29 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Handles CsvImportException - returns HTTP 400 Bad Request.
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler(CsvImportException.class)
+    public ResponseEntity<ErrorResponseDto> handleCsvImportException(
+            CsvImportException ex, HttpServletRequest request) {
+        log.warn("CSV import error: {}", ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+    
+    /**
      * Handles TemplateTaskNotFoundException - returns HTTP 404 Not Found.
      * 
      * @param ex the exception
