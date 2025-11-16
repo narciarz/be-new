@@ -37,18 +37,29 @@ public class JwtService {
     
     /**
      * Secret key for JWT signing. Should be at least 256 bits.
-     * Configured via application.yml property: jwt.secret
+     * Configured via application.yml property: jwt. Secret
      */
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private final String secretKey;
     
     /**
      * JWT token expiration time in milliseconds.
-     * Configured via application.yml property: jwt.expiration
+     * Configured via application.yml property: jwt. Expiration
      * Default: 24 hours (86400000 ms)
      */
-    @Value("${jwt.expiration:86400000}")
-    private long jwtExpiration;
+    private final long jwtExpiration;
+    
+    /**
+     * Constructor for Spring dependency injection.
+     * 
+     * @param secretKey JWT secret key from configuration
+     * @param jwtExpiration JWT expiration time in milliseconds
+     */
+    public JwtService(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration:86400000}") long jwtExpiration) {
+        this.secretKey = secretKey;
+        this.jwtExpiration = jwtExpiration;
+    }
     
     /**
      * Generates a JWT token for the authenticated user.
