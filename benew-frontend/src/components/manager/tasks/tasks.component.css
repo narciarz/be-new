@@ -18,7 +18,8 @@
   margin: 0;
   font-size: 28px;
   font-weight: 500;
-  color: #1976d2;
+  color: #ffc72c;
+  text-shadow: 0 2px 10px rgba(255, 199, 44, 0.3);
 }
 
 .header h1 mat-icon {
@@ -38,34 +39,37 @@
 .stat-card {
   text-align: center;
   padding: 16px;
+  background: rgba(45, 45, 45, 0.6) !important;
+  border: 2px solid rgba(255, 199, 44, 0.2) !important;
+  border-radius: 12px !important;
 }
 
 .stat-card.pending {
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid #ffc72c !important;
 }
 
 .stat-card.completed {
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid #4ade80 !important;
 }
 
 .stat-value {
   font-size: 36px;
   font-weight: bold;
-  color: #1976d2;
+  color: #ffc72c;
   margin-bottom: 8px;
 }
 
 .stat-card.pending .stat-value {
-  color: #ff9800;
+  color: #ffc72c;
 }
 
 .stat-card.completed .stat-value {
-  color: #4caf50;
+  color: #4ade80;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #666;
+  color: #a0a0a0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -81,12 +85,14 @@
 }
 
 .loading-container p {
-  color: #666;
+  color: #e0e0e0;
   font-size: 16px;
 }
 
 .error-card {
-  background-color: #ffebee;
+  background: rgba(45, 45, 45, 0.8) !important;
+  border: 2px solid rgba(239, 68, 68, 0.3) !important;
+  border-radius: 12px !important;
   margin-bottom: 24px;
 }
 
@@ -94,6 +100,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  color: #ef4444 !important;
 }
 
 .empty-state {
@@ -105,17 +112,17 @@
   font-size: 64px;
   width: 64px;
   height: 64px;
-  color: #4caf50;
+  color: #ffc72c;
   margin-bottom: 16px;
 }
 
 .empty-state h2 {
   margin: 16px 0 8px 0;
-  color: #333;
+  color: #ffc72c;
 }
 
 .empty-state p {
-  color: #666;
+  color: #e0e0e0;
   font-size: 14px;
 }
 
@@ -139,11 +146,12 @@
 .employee-name {
   font-weight: 500;
   font-size: 16px;
+  color: #ffc72c;
 }
 
 .employee-position {
   font-size: 12px;
-  color: #666;
+  color: #a0a0a0;
 }
 
 mat-panel-description {
@@ -175,12 +183,12 @@ mat-panel-description {
   display: flex;
   gap: 16px;
   padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid rgba(255, 199, 44, 0.1);
   transition: background-color 0.2s;
 }
 
 .task-item:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 199, 44, 0.05);
 }
 
 .task-item:last-child {
@@ -206,30 +214,30 @@ mat-panel-description {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .task-header h3.completed-text {
   text-decoration: line-through;
-  color: #999;
+  color: #a0a0a0;
 }
 
 .order-chip {
   min-height: 24px;
   font-size: 12px;
-  background-color: #e3f2fd !important;
-  color: #1976d2 !important;
+  background-color: rgba(255, 199, 44, 0.1) !important;
+  color: #ffc72c !important;
 }
 
 .task-description {
   margin: 8px 0;
   font-size: 14px;
-  color: #666;
+  color: #a0a0a0;
   line-height: 1.6;
 }
 
 .task-description.completed-text {
-  color: #999;
+  color: #808080;
 }
 
 .task-meta {
@@ -243,7 +251,7 @@ mat-panel-description {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #999;
+  color: #a0a0a0;
 }
 
 .meta-item mat-icon {
