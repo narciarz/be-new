@@ -73,7 +73,7 @@ jobs:
 
           # Stop current application
           sh stop.sh
-      #
+
           # Backup old version
           if [ -f benew-app-current.jar ]; then
             mv benew-app-current.jar benew-app.jar.bcp

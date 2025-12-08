@@ -9,12 +9,3 @@ services:
     restart: always
     ports:
       - "5432:5432"
-  # app:
-  #   build: .
-  #   container_name: olxsearch-app
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/test_db
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - db
