@@ -34,7 +34,7 @@ import java.util.UUID;
  * Authorization is enforced by Spring Security configuration.</p>
  */
 @RestController
-@RequestMapping("/onboarding")
+@RequestMapping("/api/onboarding")
 public class OnboardingController {
     
     private static final Logger log = LoggerFactory.getLogger(OnboardingController.class);

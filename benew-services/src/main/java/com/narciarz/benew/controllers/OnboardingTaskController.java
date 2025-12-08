@@ -31,7 +31,7 @@ import java.util.UUID;
  * OnboardingProcess for accurate progress tracking.</p>
  */
 @RestController
-@RequestMapping("/onboarding/{processId}/tasks")
+@RequestMapping("/api/onboarding/{processId}/tasks")
 public class OnboardingTaskController {
     
     private static final Logger log = LoggerFactory.getLogger(OnboardingTaskController.class);
