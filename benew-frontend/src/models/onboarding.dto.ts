@@ -6,7 +6,7 @@ export interface OnboardingProcessDto {
   userId: string;
   managerId: string;
   sourceTemplateId: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  status: 'ACTIVE' | 'ARCHIVED';
   totalTasksCount: number;
   completedTasksCount: number;
   createdAt?: string;
@@ -30,7 +30,7 @@ export interface CreateOnboardingProcessRequestDto {
  * Request DTO for updating an existing onboarding process
  */
 export interface UpdateOnboardingProcessRequestDto {
-  status?: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  status?: 'ACTIVE' | 'ARCHIVED';
   totalTasksCount?: number;
   completedTasksCount?: number;
 }

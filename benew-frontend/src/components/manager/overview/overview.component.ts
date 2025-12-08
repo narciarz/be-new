@@ -89,7 +89,7 @@ export class OverviewComponent implements OnInit {
           }),
           completed: this.onboardingService.getOnboardingProcesses(0, 100, {
             managerId: currentUser.id,
-            status: 'COMPLETED',
+            status: 'ARCHIVED',
           }),
         }).subscribe({
           next: (processResponses) => {

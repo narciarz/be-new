@@ -82,7 +82,7 @@ export class TeamComponent implements OnInit {
             const members: TeamMemberView[] = users.map((user, index) => {
               const processes = processResponses[index].content;
               const activeProcess = processes.find((p) => p.status === 'ACTIVE');
-              const completedProcess = processes.find((p) => p.status === 'COMPLETED');
+              const completedProcess = processes.find((p) => p.status === 'ARCHIVED');
 
               const progress = activeProcess
                 ? Math.round(
