@@ -64,7 +64,7 @@ export class OverviewComponent implements OnInit {
     }
 
     // Load team members and onboarding processes
-    this.userService.getUsers(0, 100, undefined, { managerId: currentUser.userId }).subscribe({
+    this.userService.getUsers(0, 100, undefined, { managerId: currentUser.id }).subscribe({
       next: (usersResponse) => {
         const users = usersResponse.content;
         const totalTeamMembers = users.length;
@@ -84,11 +84,11 @@ export class OverviewComponent implements OnInit {
         // Load onboarding processes for all users
         forkJoin({
           active: this.onboardingService.getOnboardingProcesses(0, 100, {
-            managerId: currentUser.userId,
+            managerId: currentUser.id,
             status: 'ACTIVE',
           }),
           completed: this.onboardingService.getOnboardingProcesses(0, 100, {
-            managerId: currentUser.userId,
+            managerId: currentUser.id,
             status: 'COMPLETED',
           }),
         }).subscribe({
@@ -112,7 +112,7 @@ export class OverviewComponent implements OnInit {
 
             // Build team progress list from active processes
             const progressList: TeamMemberProgress[] = activeProcesses.map((process) => {
-              const user = users.find((u) => u.userId === process.userId);
+              const user = users.find((u) => u.id === process.userId);
               const progress = Math.round(
                 (process.completedTasksCount / process.totalTasksCount) * 100
               );

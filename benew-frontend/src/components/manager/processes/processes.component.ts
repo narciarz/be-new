@@ -71,11 +71,11 @@ export class ProcessesComponent implements OnInit {
     // Load both active and completed processes
     forkJoin({
       active: this.onboardingService.getOnboardingProcesses(0, 100, {
-        managerId: currentUser.userId,
+        managerId: currentUser.id,
         status: 'ACTIVE',
       }),
       completed: this.onboardingService.getOnboardingProcesses(0, 100, {
-        managerId: currentUser.userId,
+        managerId: currentUser.id,
         status: 'COMPLETED',
       }),
     }).subscribe({

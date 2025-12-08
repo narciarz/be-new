@@ -5,9 +5,9 @@ import { UserRole } from './user-role';
  */
 export interface User {
   /**
-   * User ID (UUID format).
+   * User ID (UUID format) - matches backend "id" field
    */
-  userId: string;
+  id: string;
 
   /**
    * User email.

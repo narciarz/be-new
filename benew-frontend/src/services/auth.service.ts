@@ -55,7 +55,7 @@ export class AuthService {
    */
   private saveAuthData(response: LoginResponseDto): void {
     const user: User = {
-      userId: response.userId,
+      id: response.userId, // Backend uses "userId" in LoginResponse but "id" everywhere else
       email: response.email,
       role: response.role,
       firstName: response.firstName,

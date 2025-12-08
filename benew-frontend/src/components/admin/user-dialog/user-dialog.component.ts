@@ -116,7 +116,7 @@ export class UserDialogComponent implements OnInit {
         updateData.password = formValue.password;
       }
 
-      this.userService.updateUser(this.data.user.userId, updateData).subscribe({
+      this.userService.updateUser(this.data.user.id, updateData).subscribe({
         next: (user) => {
           this.dialogRef.close(user);
         },

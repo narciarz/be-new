@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Angular Material Theme - MUST BE FIRST */
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -37,4 +40,60 @@ body {
 .mat-mdc-raised-button.mat-primary {
   --mdc-protected-button-container-color: var(--primary-gold);
   --mdc-protected-button-label-text-color: var(--bg-dark);
+}
+
+/* Fix mat-select dropdown styles */
+.mat-mdc-select-panel {
+  background: rgba(30, 30, 30, 0.98) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 199, 44, 0.3);
+}
+
+.mat-mdc-option {
+  color: #e0e0e0 !important;
+}
+
+.mat-mdc-option:hover,
+.mat-mdc-option.mdc-list-item--selected {
+  background: rgba(255, 199, 44, 0.1) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  background: rgba(255, 199, 44, 0.15) !important;
+  color: #ffc72c !important;
+}
+
+/* Fix mat-option text visibility */
+.mdc-list-item__primary-text {
+  color: #e0e0e0 !important;
+}
+
+/* Mat-select arrow color */
+.mat-mdc-select-arrow {
+  color: #e0e0e0 !important;
+}
+
+/* Mat-select placeholder */
+.mat-mdc-select-placeholder {
+  color: #a0a0a0 !important;
+}
+
+/* Mat-select value text */
+.mat-mdc-select-value-text {
+  color: #e0e0e0 !important;
+}
+
+/* Dialog backdrop */
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Mat-hint text */
+.mat-mdc-form-field-hint {
+  color: #a0a0a0 !important;
+}
+
+/* Mat-error text */
+.mat-mdc-form-field-error {
+  color: #ff6b6b !important;
 }

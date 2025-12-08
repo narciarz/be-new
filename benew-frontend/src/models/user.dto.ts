@@ -4,7 +4,7 @@ import { UserRole } from './user-role';
  * User entity from backend
  */
 export interface UserDto {
-  userId: string;
+  id: string; // Backend returns "id" not "userId"
   email: string;
   firstName: string;
   lastName: string;

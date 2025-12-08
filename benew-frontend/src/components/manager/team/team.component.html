@@ -23,7 +23,7 @@
     </mat-card>
   } @else {
     <div class="team-grid">
-      @for (member of teamMembers(); track member.userId) {
+      @for (member of teamMembers(); track member.id) {
         <mat-card class="member-card" [class.completed]="member.status === 'completed'">
           <mat-card-header>
             <div class="member-avatar">
@@ -72,12 +72,12 @@
             </div>
           </mat-card-content>
 
-          <mat-card-actions>
-            <button mat-button (click)="onViewDetails(member.userId)">
-              <mat-icon>visibility</mat-icon>
-              Zobacz szczegóły
-            </button>
-          </mat-card-actions>
+        <mat-card-actions>
+          <button mat-button (click)="onViewDetails(member.id)">
+            <mat-icon>visibility</mat-icon>
+            Zobacz szczegóły
+          </button>
+        </mat-card-actions>
         </mat-card>
       }
     </div>

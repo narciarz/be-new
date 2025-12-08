@@ -75,7 +75,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   onEditUser(userId: string): void {
-    const user = this.users().find((u) => u.userId === userId);
+    const user = this.users().find((u) => u.id === userId);
     if (!user) return;
 
     const dialogRef = this.dialog.open(UserDialogComponent, {
@@ -86,7 +86,7 @@ export class UserManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Update user in the list
-        this.users.update((users) => users.map((u) => (u.userId === userId ? result : u)));
+        this.users.update((users) => users.map((u) => (u.id === userId ? result : u)));
       }
     });
   }
@@ -100,7 +100,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.deleteUser(userId).subscribe({
       next: () => {
         // Remove from local state
-        const updated = this.users().filter((u) => u.userId !== userId);
+        const updated = this.users().filter((u) => u.id !== userId);
         this.users.set(updated);
         console.log('User deleted successfully');
       },

@@ -69,8 +69,8 @@
       <mat-label>Menedżer (opcjonalnie)</mat-label>
       <mat-select formControlName="managerId">
         <mat-option [value]="null">Brak menedżera</mat-option>
-        @for (manager of allUsers(); track manager.userId) {
-          <mat-option [value]="manager.userId">
+        @for (manager of allUsers(); track manager.id) {
+          <mat-option [value]="manager.id">
             {{ manager.firstName }} {{ manager.lastName }} ({{ manager.email }})
           </mat-option>
         }

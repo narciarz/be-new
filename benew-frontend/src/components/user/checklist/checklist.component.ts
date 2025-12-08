@@ -61,7 +61,7 @@ export class ChecklistComponent implements OnInit {
 
     // Get onboarding processes for current user
     this.onboardingService
-      .getOnboardingProcesses(0, 1, { userId: currentUser.userId, status: 'ACTIVE' })
+      .getOnboardingProcesses(0, 1, { userId: currentUser.id, status: 'ACTIVE' })
       .subscribe({
         next: (response) => {
           if (response.content.length > 0) {

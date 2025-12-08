@@ -12,7 +12,7 @@ import { OnboardingProcessDto } from '../../../models/onboarding.dto';
 import { forkJoin } from 'rxjs';
 
 interface TeamMemberView {
-  userId: string;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -63,7 +63,7 @@ export class TeamComponent implements OnInit {
     }
 
     // Get users managed by current user
-    this.userService.getUsers(0, 100, undefined, { managerId: currentUser.userId }).subscribe({
+    this.userService.getUsers(0, 100, undefined, { managerId: currentUser.id }).subscribe({
       next: (response) => {
         const users = response.content;
         if (users.length === 0) {
@@ -74,7 +74,7 @@ export class TeamComponent implements OnInit {
 
         // Load onboarding processes for each user
         const onboardingRequests = users.map((user) =>
-          this.onboardingService.getOnboardingProcesses(0, 1, { userId: user.userId })
+          this.onboardingService.getOnboardingProcesses(0, 1, { userId: user.id })
         );
 
         forkJoin(onboardingRequests).subscribe({
@@ -93,7 +93,7 @@ export class TeamComponent implements OnInit {
                   : 0;
 
               return {
-                userId: user.userId,
+                id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
