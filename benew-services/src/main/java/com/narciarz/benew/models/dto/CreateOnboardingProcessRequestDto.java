@@ -1,6 +1,10 @@
 package com.narciarz.benew.models.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -11,6 +15,10 @@ import java.util.UUID;
  * Typically triggered upon creation of a user account. The backend copies tasks
  * from the relevant template.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateOnboardingProcessRequestDto {
     
     /**
@@ -30,41 +38,6 @@ public class CreateOnboardingProcessRequestDto {
      */
     @NotNull(message = "Source template ID is required")
     private UUID sourceTemplateId;
-
-    // Constructors
-    public CreateOnboardingProcessRequestDto() {
-    }
-
-    public CreateOnboardingProcessRequestDto(UUID userId, UUID managerId, UUID sourceTemplateId) {
-        this.userId = userId;
-        this.managerId = managerId;
-        this.sourceTemplateId = sourceTemplateId;
-    }
-
-    // Getters and Setters
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public UUID getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(UUID managerId) {
-        this.managerId = managerId;
-    }
-
-    public UUID getSourceTemplateId() {
-        return sourceTemplateId;
-    }
-
-    public void setSourceTemplateId(UUID sourceTemplateId) {
-        this.sourceTemplateId = sourceTemplateId;
-    }
 }
 
 

@@ -1,5 +1,10 @@
 package com.narciarz.benew.models.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +14,10 @@ import java.util.UUID;
  * <p>Used by POST /templates/import to return import summary and results.</p>
  * <p>Contains information about the created template and imported tasks.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TemplateImportResponseDto {
     
     /**
@@ -35,59 +44,5 @@ public class TemplateImportResponseDto {
      * Import status message.
      */
     private String message;
-
-    // Constructors
-    public TemplateImportResponseDto() {
-    }
-
-    public TemplateImportResponseDto(UUID templateId, String positionName, 
-                                    int tasksImported, List<UUID> taskIds, String message) {
-        this.templateId = templateId;
-        this.positionName = positionName;
-        this.tasksImported = tasksImported;
-        this.taskIds = taskIds;
-        this.message = message;
-    }
-
-    // Getters and Setters
-    public UUID getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(UUID templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getPositionName() {
-        return positionName;
-    }
-
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public int getTasksImported() {
-        return tasksImported;
-    }
-
-    public void setTasksImported(int tasksImported) {
-        this.tasksImported = tasksImported;
-    }
-
-    public List<UUID> getTaskIds() {
-        return taskIds;
-    }
-
-    public void setTaskIds(List<UUID> taskIds) {
-        this.taskIds = taskIds;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
 

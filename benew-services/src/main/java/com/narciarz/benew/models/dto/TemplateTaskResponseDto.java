@@ -1,6 +1,10 @@
 package com.narciarz.benew.models.dto;
 
 import com.narciarz.benew.models.TaskOwnerRole;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -10,6 +14,10 @@ import java.util.UUID;
  * 
  * <p>Used by GET /templates/{templateId}/tasks to return template task information.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TemplateTaskResponseDto {
     
     /**
@@ -51,88 +59,6 @@ public class TemplateTaskResponseDto {
      * Record last update timestamp.
      */
     private OffsetDateTime updatedAt;
-
-    // Constructors
-    public TemplateTaskResponseDto() {
-    }
-
-    public TemplateTaskResponseDto(UUID id, UUID templateId, String title, String description,
-                                   Integer taskOrder, TaskOwnerRole ownerRole,
-                                   OffsetDateTime createdAt, OffsetDateTime updatedAt) {
-        this.id = id;
-        this.templateId = templateId;
-        this.title = title;
-        this.description = description;
-        this.taskOrder = taskOrder;
-        this.ownerRole = ownerRole;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    // Getters and Setters
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public UUID getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(UUID templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getTaskOrder() {
-        return taskOrder;
-    }
-
-    public void setTaskOrder(Integer taskOrder) {
-        this.taskOrder = taskOrder;
-    }
-
-    public TaskOwnerRole getOwnerRole() {
-        return ownerRole;
-    }
-
-    public void setOwnerRole(TaskOwnerRole ownerRole) {
-        this.ownerRole = ownerRole;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public OffsetDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 
 

@@ -2,12 +2,20 @@ package com.narciarz.benew.models.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO for creating a new checklist template.
  * 
  * <p>Used by POST /templates to create a new onboarding template for a specific position.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateTemplateRequestDto {
     
     /**
@@ -17,23 +25,6 @@ public class CreateTemplateRequestDto {
     @NotBlank(message = "Position name is required")
     @Size(max = 50, message = "Position name must not exceed 50 characters")
     private String positionName;
-
-    // Constructors
-    public CreateTemplateRequestDto() {
-    }
-
-    public CreateTemplateRequestDto(String positionName) {
-        this.positionName = positionName;
-    }
-
-    // Getters and Setters
-    public String getPositionName() {
-        return positionName;
-    }
-
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
 }
 
 

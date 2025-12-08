@@ -1,11 +1,20 @@
 package com.narciarz.benew.models.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * DTO for updating an onboarding task.
  * 
  * <p>Used by PUT /onboarding/{processId}/tasks/{taskId} to update task status
  * (e.g., marking as completed).</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateOnboardingTaskRequestDto {
     
     /**
@@ -13,23 +22,6 @@ public class UpdateOnboardingTaskRequestDto {
      * Triggers update of completed_tasks_count in parent onboarding_process.
      */
     private Boolean isCompleted;
-
-    // Constructors
-    public UpdateOnboardingTaskRequestDto() {
-    }
-
-    public UpdateOnboardingTaskRequestDto(Boolean isCompleted) {
-        this.isCompleted = isCompleted;
-    }
-
-    // Getters and Setters
-    public Boolean getIsCompleted() {
-        return isCompleted;
-    }
-
-    public void setIsCompleted(Boolean isCompleted) {
-        this.isCompleted = isCompleted;
-    }
 }
 
 

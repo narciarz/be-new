@@ -1,6 +1,10 @@
 package com.narciarz.benew.models.dto;
 
 import com.narciarz.benew.models.OnboardingStatus;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO for updating an onboarding process.
@@ -8,6 +12,10 @@ import com.narciarz.benew.models.OnboardingStatus;
  * <p>Used by PUT /onboarding/{processId} to update process status (e.g., marking as ARCHIVED)
  * or adjust denormalized task counters. All fields are optional.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateOnboardingProcessRequestDto {
     
     /**
@@ -26,42 +34,6 @@ public class UpdateOnboardingProcessRequestDto {
      * Typically updated automatically by application.
      */
     private Integer completedTasksCount;
-
-    // Constructors
-    public UpdateOnboardingProcessRequestDto() {
-    }
-
-    public UpdateOnboardingProcessRequestDto(OnboardingStatus status, Integer totalTasksCount, 
-                                            Integer completedTasksCount) {
-        this.status = status;
-        this.totalTasksCount = totalTasksCount;
-        this.completedTasksCount = completedTasksCount;
-    }
-
-    // Getters and Setters
-    public OnboardingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OnboardingStatus status) {
-        this.status = status;
-    }
-
-    public Integer getTotalTasksCount() {
-        return totalTasksCount;
-    }
-
-    public void setTotalTasksCount(Integer totalTasksCount) {
-        this.totalTasksCount = totalTasksCount;
-    }
-
-    public Integer getCompletedTasksCount() {
-        return completedTasksCount;
-    }
-
-    public void setCompletedTasksCount(Integer completedTasksCount) {
-        this.completedTasksCount = completedTasksCount;
-    }
 }
 
 

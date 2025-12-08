@@ -11,7 +11,9 @@ alwaysApply: false
 - Avoid hardcoding values that may change externally, use configuration parameters instead
 - For complex logic, use Spring profiles and configuration parameters to control which beans are injected instead of hardcoded conditionals
 - If a well-known library simplifies the solution, suggest using it instead of generating a custom implementation
-- Use DTOs as immutable `record` types
+- Use DTOs as immutable `record` types for simple DTOs, or use Lombok annotations (`@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`) for complex DTOs
+- Use Lombok annotations (`@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`) for JPA entities to reduce boilerplate
+- Create a `BaseEntity` class with common audit fields (`id`, `createdAt`, `updatedAt`) and use `@MappedSuperclass` with Spring Data JPA Auditing
 - Use Bean Validation annotations (e.g., `@Size`, `@Email`, etc.) instead of manual validation logic
 - Use `@Valid` on request parameters annotated with `@RequestBody`
 - Use custom exceptions for business-related scenarios
@@ -25,6 +27,7 @@ alwaysApply: false
 
 - Define repositories as interfaces extending `JpaRepository` or `CrudRepository`
 - Never expose JPA entities in API responses – always map them to DTOs
+- Use MapStruct for entity-DTO mapping with Lombok support (lombok-mapstruct-binding configured in pom.xml)
 - Use `@Transactional` at the service layer for state-changing methods, and keep transactions as short as possible
 - Use `@Transactional(readOnly = true)` for read-only operations
 - Use `@EntityGraph` or fetch joins to avoid the N+1 select problem
@@ -35,3 +38,10 @@ alwaysApply: false
 - Use `@Version` for optimistic locking in concurrent updates
 - Avoid `CascadeType.REMOVE` on large entity relationships
 - Use HikariCP for efficient connection pooling
+
+#### LOMBOK_MAPSTRUCT_INTEGRATION
+
+- Lombok annotation processor must run before MapStruct in Maven compiler plugin configuration
+- Use `lombok-mapstruct-binding` dependency to ensure compatibility between Lombok and MapStruct
+- Entities should extend `BaseEntity` to inherit common audit fields (`id`, `createdAt`, `updatedAt`)
+- MapStruct mappers should ignore inherited fields from `BaseEntity` in mappings with `@Mapping(target = "id", ignore = true)`, etc.
