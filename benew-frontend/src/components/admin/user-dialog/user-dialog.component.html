@@ -1,0 +1,101 @@
+<h2 mat-dialog-title>
+  @if (isEditMode) {
+    Edytuj użytkownika
+  } @else {
+    Dodaj użytkownika
+  }
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="userForm" class="user-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" placeholder="jan.kowalski@example.com" />
+      @if (getErrorMessage('email')) {
+        <mat-error>{{ getErrorMessage('email') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasło</mat-label>
+      <input
+        matInput
+        type="password"
+        formControlName="password"
+        [placeholder]="isEditMode ? 'Pozostaw puste aby nie zmieniać' : 'Minimum 8 znaków'"
+      />
+      @if (getErrorMessage('password')) {
+        <mat-error>{{ getErrorMessage('password') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Imię</mat-label>
+      <input matInput formControlName="firstName" placeholder="Jan" />
+      @if (getErrorMessage('firstName')) {
+        <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nazwisko</mat-label>
+      <input matInput formControlName="lastName" placeholder="Kowalski" />
+      @if (getErrorMessage('lastName')) {
+        <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Stanowisko</mat-label>
+      <input matInput formControlName="positionName" placeholder="Software Developer" />
+      @if (getErrorMessage('positionName')) {
+        <mat-error>{{ getErrorMessage('positionName') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Rola</mat-label>
+      <mat-select formControlName="role">
+        @for (role of roles; track role.value) {
+          <mat-option [value]="role.value">{{ role.label }}</mat-option>
+        }
+      </mat-select>
+      @if (getErrorMessage('role')) {
+        <mat-error>{{ getErrorMessage('role') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Menedżer (opcjonalnie)</mat-label>
+      <mat-select formControlName="managerId">
+        <mat-option [value]="null">Brak menedżera</mat-option>
+        @for (manager of allUsers(); track manager.userId) {
+          <mat-option [value]="manager.userId">
+            {{ manager.firstName }} {{ manager.lastName }} ({{ manager.email }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <div class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSaving()">Anuluj</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="isSaving()">
+    @if (isSaving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      Zapisywanie...
+    } @else if (isEditMode) {
+      Zapisz zmiany
+    } @else {
+      Utwórz użytkownika
+    }
+  </button>
+</mat-dialog-actions>

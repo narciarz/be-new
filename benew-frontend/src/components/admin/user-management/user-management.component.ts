@@ -6,8 +6,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserDto } from '../../../models/user.dto';
+import { UserDialogComponent } from '../user-dialog/user-dialog.component';
 
 /**
  * User Management component for Admin role.
@@ -30,6 +32,7 @@ import { UserDto } from '../../../models/user.dto';
 })
 export class UserManagementComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly dialog = inject(MatDialog);
 
   readonly displayedColumns = ['email', 'firstName', 'lastName', 'role', 'actions'];
   readonly users = signal<UserDto[]>([]);
@@ -58,13 +61,34 @@ export class UserManagementComponent implements OnInit {
   }
 
   onAddUser(): void {
-    console.log('Add user clicked');
-    // TODO: Open dialog to add user
+    const dialogRef = this.dialog.open(UserDialogComponent, {
+      width: '600px',
+      data: { mode: 'create' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Add new user to the list
+        this.users.update((users) => [...users, result]);
+      }
+    });
   }
 
   onEditUser(userId: string): void {
-    console.log('Edit user:', userId);
-    // TODO: Open dialog to edit user
+    const user = this.users().find((u) => u.userId === userId);
+    if (!user) return;
+
+    const dialogRef = this.dialog.open(UserDialogComponent, {
+      width: '600px',
+      data: { mode: 'edit', user },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Update user in the list
+        this.users.update((users) => users.map((u) => (u.userId === userId ? result : u)));
+      }
+    });
   }
 
   onDeleteUser(userId: string): void {

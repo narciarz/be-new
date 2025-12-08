@@ -6,8 +6,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 import { TemplateService } from '../../../services/template.service';
 import { TemplateDto, TemplateTaskDto } from '../../../models/template.dto';
+import { TemplateDialogComponent } from '../template-dialog/template-dialog.component';
+import { TaskDialogComponent } from '../task-dialog/task-dialog.component';
 import { forkJoin } from 'rxjs';
 
 interface TemplateWithTasks extends TemplateDto {
@@ -36,6 +39,7 @@ interface TemplateWithTasks extends TemplateDto {
 })
 export class TemplatesComponent implements OnInit {
   private readonly templateService = inject(TemplateService);
+  private readonly dialog = inject(MatDialog);
 
   readonly templates = signal<TemplateWithTasks[]>([]);
   readonly isLoading = signal(true);
@@ -94,13 +98,43 @@ export class TemplatesComponent implements OnInit {
   }
 
   onAddTemplate(): void {
-    console.log('Add template clicked');
-    // TODO: Open dialog to add template
+    const dialogRef = this.dialog.open(TemplateDialogComponent, {
+      width: '600px',
+      data: { mode: 'create' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Add new template to the list (with empty tasks array)
+        const newTemplate: TemplateWithTasks = {
+          ...result,
+          tasks: [],
+          tasksCount: 0,
+        };
+        this.templates.update((templates) => [...templates, newTemplate]);
+      }
+    });
   }
 
   onEditTemplate(templateId: string): void {
-    console.log('Edit template:', templateId);
-    // TODO: Open dialog to edit template
+    const template = this.templates().find((t) => t.templateId === templateId);
+    if (!template) return;
+
+    const dialogRef = this.dialog.open(TemplateDialogComponent, {
+      width: '600px',
+      data: { mode: 'edit', template },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Update template in the list (preserve tasks)
+        this.templates.update((templates) =>
+          templates.map((t) =>
+            t.templateId === templateId ? { ...result, tasks: t.tasks, tasksCount: t.tasksCount } : t
+          )
+        );
+      }
+    });
   }
 
   onDeleteTemplate(templateId: string): void {
@@ -123,13 +157,70 @@ export class TemplatesComponent implements OnInit {
   }
 
   onAddTask(templateId: string): void {
-    console.log('Add task to template:', templateId);
-    // TODO: Open dialog to add task
+    const template = this.templates().find((t) => t.templateId === templateId);
+    if (!template) return;
+
+    const dialogRef = this.dialog.open(TaskDialogComponent, {
+      width: '600px',
+      data: {
+        mode: 'create',
+        templateId,
+        existingTasksCount: template.tasks.length,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Add new task to the template
+        this.templates.update((templates) =>
+          templates.map((t) => {
+            if (t.templateId === templateId) {
+              return {
+                ...t,
+                tasks: [...t.tasks, result],
+                tasksCount: t.tasks.length + 1,
+              };
+            }
+            return t;
+          })
+        );
+      }
+    });
   }
 
   onEditTask(templateId: string, taskId: string): void {
-    console.log('Edit task:', taskId, 'in template:', templateId);
-    // TODO: Open dialog to edit task
+    const template = this.templates().find((t) => t.templateId === templateId);
+    if (!template) return;
+
+    const task = template.tasks.find((t) => t.taskId === taskId);
+    if (!task) return;
+
+    const dialogRef = this.dialog.open(TaskDialogComponent, {
+      width: '600px',
+      data: {
+        mode: 'edit',
+        templateId,
+        task,
+        existingTasksCount: template.tasks.length,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Update task in the template
+        this.templates.update((templates) =>
+          templates.map((t) => {
+            if (t.templateId === templateId) {
+              return {
+                ...t,
+                tasks: t.tasks.map((task) => (task.taskId === taskId ? result : task)),
+              };
+            }
+            return t;
+          })
+        );
+      }
+    });
   }
 
   onDeleteTask(templateId: string, taskId: string): void {
