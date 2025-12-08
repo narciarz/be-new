@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserDto } from '../../../models/user.dto';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 /**
  * User Management component for Admin role.
@@ -92,22 +93,39 @@ export class UserManagementComponent implements OnInit {
   }
 
   onDeleteUser(userId: string): void {
-    console.log('Delete user:', userId);
-    if (!confirm('Czy na pewno chcesz usunąć tego użytkownika?')) {
-      return;
-    }
+    const user = this.users().find((u) => u.id === userId);
+    if (!user) return;
 
-    this.userService.deleteUser(userId).subscribe({
-      next: () => {
-        // Remove from local state
-        const updated = this.users().filter((u) => u.id !== userId);
-        this.users.set(updated);
-        console.log('User deleted successfully');
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Potwierdź usunięcie użytkownika',
+        message: `Czy na pewno chcesz usunąć użytkownika <strong>${user.firstName} ${user.lastName}</strong>?\n\n` +
+          `<strong>UWAGA:</strong> Usunięcie użytkownika spowoduje również usunięcie wszystkich jego procesów onboardingowych i zadań. Ta operacja jest nieodwracalna.`,
+        confirmText: 'Usuń',
+        cancelText: 'Anuluj',
+        danger: true,
       },
-      error: (error) => {
-        console.error('Error deleting user:', error);
-        this.errorMessage.set('Błąd podczas usuwania użytkownika');
-      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.userService.deleteUser(userId).subscribe({
+        next: () => {
+          // Remove from local state
+          const updated = this.users().filter((u) => u.id !== userId);
+          this.users.set(updated);
+          console.log('User deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting user:', error);
+          const errorMsg = error.error?.message || 'Błąd podczas usuwania użytkownika';
+          this.errorMessage.set(errorMsg);
+        },
+      });
     });
   }
 

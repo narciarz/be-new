@@ -41,6 +41,21 @@ public class UserDeletionException extends RuntimeException {
     }
     
     /**
+     * Constructs a new UserDeletionException indicating user has onboarding processes.
+     * 
+     * @param userId the user's ID
+     * @param processCount the number of onboarding processes
+     * @param includeProcessInfo whether to include process count in message
+     */
+    public UserDeletionException(UUID userId, long processCount, boolean includeProcessInfo) {
+        super(includeProcessInfo 
+            ? "Cannot delete user with id: " + userId + 
+              ". User has " + processCount + " onboarding process(es). " +
+              "Deleting the user will also delete all associated onboarding processes and tasks."
+            : "Cannot delete user with id: " + userId);
+    }
+    
+    /**
      * Constructs a new UserDeletionException with a message and cause.
      * 
      * @param message the detail message

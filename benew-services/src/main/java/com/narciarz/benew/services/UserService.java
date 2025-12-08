@@ -11,6 +11,8 @@ import com.narciarz.benew.models.dto.CreateOnboardingProcessRequestDto;
 import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
+import com.narciarz.benew.repositories.OnboardingProcessRepository;
+import com.narciarz.benew.repositories.OnboardingTaskRepository;
 import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -53,6 +55,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TemplateRepository templateRepository;
     private final OnboardingService onboardingService;
+    private final OnboardingProcessRepository onboardingProcessRepository;
+    private final OnboardingTaskRepository onboardingTaskRepository;
     
     /**
      * Constructor-based dependency injection.
@@ -62,17 +66,23 @@ public class UserService {
      * @param passwordEncoder encoder for password hashing
      * @param templateRepository repository for template data access
      * @param onboardingService service for creating onboarding processes
+     * @param onboardingProcessRepository repository for onboarding process data access
+     * @param onboardingTaskRepository repository for onboarding task data access
      */
     public UserService(UserRepository userRepository, 
                       UserMapper userMapper,
                       PasswordEncoder passwordEncoder,
                       TemplateRepository templateRepository,
-                      OnboardingService onboardingService) {
+                      OnboardingService onboardingService,
+                      OnboardingProcessRepository onboardingProcessRepository,
+                      OnboardingTaskRepository onboardingTaskRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.templateRepository = templateRepository;
         this.onboardingService = onboardingService;
+        this.onboardingProcessRepository = onboardingProcessRepository;
+        this.onboardingTaskRepository = onboardingTaskRepository;
     }
     
     /**
@@ -532,6 +542,32 @@ public class UserService {
         if (employeeCount > 0) {
             log.warn("Cannot delete user {} - still has {} employee(s) assigned", userId, employeeCount);
             throw new UserDeletionException(userId, employeeCount);
+        }
+        
+        // Check if user has onboarding processes and delete cascade: tasks -> processes
+        long processCount = onboardingProcessRepository.countByUserId(userId);
+        if (processCount > 0) {
+            log.info("User {} has {} onboarding process(es), deleting cascade", userId, processCount);
+            try {
+                // Step 1: Get all process IDs for this user
+                var processes = onboardingProcessRepository.findByUserId(userId, org.springframework.data.domain.Pageable.unpaged());
+                
+                // Step 2: Delete all tasks for each process
+                for (var process : processes) {
+                    long taskCount = onboardingTaskRepository.countByOnboardingProcessId(process.getId());
+                    if (taskCount > 0) {
+                        log.debug("Deleting {} task(s) for process {}", taskCount, process.getId());
+                        onboardingTaskRepository.deleteByOnboardingProcessId(process.getId());
+                    }
+                }
+                
+                // Step 3: Delete all processes
+                onboardingProcessRepository.deleteByUserId(userId);
+                log.info("Deleted {} onboarding process(es) and their tasks for user {}", processCount, userId);
+            } catch (Exception e) {
+                log.error("Error deleting onboarding data for user {}: {}", userId, e.getMessage());
+                throw new UserDeletionException("Failed to delete user's onboarding data: " + e.getMessage(), e);
+            }
         }
         
         try {
