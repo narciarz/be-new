@@ -99,7 +99,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTasksByProcessId(processId)).thenReturn(tasks);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -125,7 +125,7 @@ class OnboardingTaskControllerTest {
                 .thenThrow(new OnboardingProcessNotFoundException(processId));
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString(processId.toString())));
@@ -140,7 +140,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTasksByProcessId(processId)).thenReturn(Arrays.asList());
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -156,7 +156,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTaskById(processId, taskId1)).thenReturn(taskResponseDto1);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(taskId1.toString()))
@@ -178,7 +178,7 @@ class OnboardingTaskControllerTest {
                 .thenThrow(new OnboardingTaskNotFoundException(taskId1, processId));
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString(taskId1.toString())))
@@ -202,7 +202,7 @@ class OnboardingTaskControllerTest {
                 .thenReturn(completedTask);
         
         // Act & Assert
-        mockMvc.perform(put("/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
+        mockMvc.perform(put("/api/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateTaskDto)))
                 .andExpect(status().isOk())
@@ -228,7 +228,7 @@ class OnboardingTaskControllerTest {
                 .thenReturn(incompleteTask);
         
         // Act & Assert
-        mockMvc.perform(put("/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
+        mockMvc.perform(put("/api/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(incompleteDto)))
                 .andExpect(status().isOk())
@@ -245,7 +245,7 @@ class OnboardingTaskControllerTest {
                 .thenThrow(new OnboardingTaskNotFoundException(taskId1, processId));
         
         // Act & Assert
-        mockMvc.perform(put("/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
+        mockMvc.perform(put("/api/onboarding/{processId}/tasks/{taskId}", processId, taskId1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateTaskDto)))
                 .andExpect(status().isNotFound())
@@ -264,7 +264,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTasksByProcessId(anotherProcessId)).thenReturn(tasks);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", anotherProcessId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", anotherProcessId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         
@@ -290,7 +290,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTasksByProcessId(processId)).thenReturn(tasks);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].ownerRole").value("USER"))
@@ -306,7 +306,7 @@ class OnboardingTaskControllerTest {
         when(taskService.getTasksByProcessId(processId)).thenReturn(Arrays.asList(taskResponseDto1));
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}/tasks", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}/tasks", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].createdAt").exists())
