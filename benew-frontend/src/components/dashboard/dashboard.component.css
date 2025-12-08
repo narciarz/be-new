@@ -1,0 +1,98 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.user-info {
+  margin-right: 1rem;
+  font-size: 0.875rem;
+}
+
+.sidenav-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidenav {
+  width: 280px;
+  padding: 1rem 0;
+}
+
+.sidenav mat-nav-list {
+  padding-top: 0;
+}
+
+.sidenav h3[mat-subheader] {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.sidenav a[mat-list-item] {
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 0.25rem 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.sidenav a[mat-list-item]:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.main-content {
+  background-color: #f5f5f5;
+  overflow-y: auto;
+}
+
+.content-wrapper {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-wrapper h1 {
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-card {
+  margin-top: 1rem;
+}
+
+.welcome-card p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.welcome-card p:first-of-type {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .sidenav {
+    width: 240px;
+  }
+
+  .content-wrapper {
+    padding: 1rem;
+  }
+
+  .user-info {
+    display: none;
+  }
+}
