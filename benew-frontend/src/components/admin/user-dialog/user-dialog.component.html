@@ -62,29 +62,43 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Rola</mat-label>
-      <mat-select formControlName="role">
-        @for (role of roles; track role.value) {
-          <mat-option [value]="role.value">{{ role.label }}</mat-option>
+    @if (!isManager()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Rola</mat-label>
+        <mat-select formControlName="role">
+          @for (role of roles(); track role.value) {
+            <mat-option [value]="role.value">{{ role.label }}</mat-option>
+          }
+        </mat-select>
+        @if (getErrorMessage('role')) {
+          <mat-error>{{ getErrorMessage('role') }}</mat-error>
         }
-      </mat-select>
-      @if (getErrorMessage('role')) {
-        <mat-error>{{ getErrorMessage('role') }}</mat-error>
-      }
-    </mat-form-field>
+      </mat-form-field>
+    } @else {
+      <div class="info-message">
+        <mat-icon>info</mat-icon>
+        <span>Tworzysz użytkownika z rolą: <strong>Użytkownik</strong></span>
+      </div>
+    }
 
-    <mat-form-field appearance="outline">
-      <mat-label>Menedżer (opcjonalnie)</mat-label>
-      <mat-select formControlName="managerId">
-        <mat-option [value]="null">Brak menedżera</mat-option>
-        @for (manager of allUsers(); track manager.id) {
-          <mat-option [value]="manager.id">
-            {{ manager.firstName }} {{ manager.lastName }} ({{ manager.email }})
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    @if (!isManager()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Menedżer (opcjonalnie)</mat-label>
+        <mat-select formControlName="managerId">
+          <mat-option [value]="null">Brak menedżera</mat-option>
+          @for (manager of allUsers(); track manager.id) {
+            <mat-option [value]="manager.id">
+              {{ manager.firstName }} {{ manager.lastName }} ({{ manager.email }})
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <div class="info-message">
+        <mat-icon>info</mat-icon>
+        <span>Użytkownik zostanie automatycznie przypisany do Ciebie jako menedżera</span>
+      </div>
+    }
 
     @if (errorMessage()) {
       <div class="error-message">

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 import { UserDto, CreateUserRequestDto, UpdateUserRequestDto } from '../../../models/user.dto';
 import { UserRole } from '../../../models/user-role';
 import { startWith, map } from 'rxjs/operators';
@@ -46,6 +47,7 @@ export class UserDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<UserDialogComponent>);
   private readonly data = inject<UserDialogData>(MAT_DIALOG_DATA);
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
 
   readonly userForm: FormGroup;
   readonly isSaving = signal(false);
@@ -55,14 +57,32 @@ export class UserDialogComponent implements OnInit {
   readonly availablePositions = signal<string[]>([]);
   filteredPositions$!: Observable<string[]>;
 
-  readonly roles = [
+  readonly currentUser = this.authService.currentUser;
+  readonly isManager = computed(() => this.currentUser()?.role === UserRole.MANAGER);
+  readonly isAdmin = computed(() => this.currentUser()?.role === UserRole.ADMIN);
+
+  readonly allRoles = [
     { value: UserRole.ADMIN, label: 'Administrator' },
     { value: UserRole.MANAGER, label: 'Menedżer' },
     { value: UserRole.USER, label: 'Użytkownik' },
   ];
 
+  // Available roles based on current user's role
+  readonly roles = computed(() => {
+    if (this.isManager()) {
+      // Managers can only create users with USER role
+      return [{ value: UserRole.USER, label: 'Użytkownik' }];
+    }
+    return this.allRoles;
+  });
+
   constructor() {
     this.isEditMode = this.data.mode === 'edit';
+
+    // Determine default role based on current user
+    const defaultRole = this.currentUser()?.role === UserRole.MANAGER 
+      ? UserRole.USER 
+      : (this.data.user?.role || UserRole.USER);
 
     this.userForm = this.fb.group({
       email: [
@@ -76,8 +96,8 @@ export class UserDialogComponent implements OnInit {
       firstName: [this.data.user?.firstName || '', [Validators.required]],
       lastName: [this.data.user?.lastName || '', [Validators.required]],
       positionName: [this.data.user?.positionName || '', [Validators.required]],
-      role: [this.data.user?.role || UserRole.USER, [Validators.required]],
-      managerId: [this.data.user?.managerId || null],
+      role: [defaultRole, [Validators.required]], // Don't disable - handle in onSave()
+      managerId: [this.data.user?.managerId || null], // Don't disable - handle in onSave()
     });
   }
 
@@ -88,15 +108,19 @@ export class UserDialogComponent implements OnInit {
   }
 
   private loadManagers(): void {
-    // Load users with MANAGER role for manager selection
-    this.userService.getUsers(0, 100, undefined, { role: UserRole.MANAGER }).subscribe({
-      next: (response) => {
-        this.allUsers.set(response.content);
-      },
-      error: (error) => {
-        console.error('Error loading managers:', error);
-      },
-    });
+    // Only load managers if the current user is an admin
+    // Managers don't need this as they cannot select a manager
+    if (!this.isManager()) {
+      // Load users with MANAGER role for manager selection
+      this.userService.getUsers(0, 100, undefined, { role: UserRole.MANAGER }).subscribe({
+        next: (response) => {
+          this.allUsers.set(response.content);
+        },
+        error: (error) => {
+          console.error('Error loading managers:', error);
+        },
+      });
+    }
   }
 
   private loadPositions(): void {
@@ -170,14 +194,18 @@ export class UserDialogComponent implements OnInit {
       });
     } else {
       // Create new user
+      // For MANAGER, force role to USER
+      const userRole = this.isManager() ? UserRole.USER : formValue.role;
+      
       const createData: CreateUserRequestDto = {
         email: formValue.email,
         password: formValue.password,
         firstName: formValue.firstName,
         lastName: formValue.lastName,
         positionName: formValue.positionName.toLowerCase().trim(),
-        role: formValue.role,
-        managerId: formValue.managerId || undefined,
+        role: userRole, // Force USER role for managers
+        // Managers don't specify managerId - backend auto-assigns to themselves
+        managerId: this.isManager() ? undefined : (formValue.managerId || undefined),
       };
 
       this.userService.createUser(createData).subscribe({
@@ -186,7 +214,7 @@ export class UserDialogComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating user:', error);
-          this.errorMessage.set(error.error?.message || 'Błąd podczas tworzenia użytkownika');
+          this.errorMessage.set(error.error?.message || 'Błąd podczas aktualizacji użytkownika');
           this.isSaving.set(false);
         },
       });

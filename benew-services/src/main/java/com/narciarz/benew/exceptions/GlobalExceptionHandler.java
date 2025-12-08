@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -335,6 +336,33 @@ public class GlobalExceptionHandler {
         );
         
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+    
+    /**
+     * Handles AccessDeniedException - returns HTTP 403 Forbidden.
+     * 
+     * <p>Thrown by Spring Security when an authenticated user attempts to access
+     * a resource they don't have permission to access (e.g., MANAGER trying to access
+     * ADMIN-only endpoints, or attempting to access resources outside their scope).</p>
+     * 
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 403 status
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAccessDeniedException(
+            AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("Access denied for request to: {} - {}", request.getRequestURI(), ex.getMessage());
+        
+        ErrorResponseDto error = new ErrorResponseDto(
+                OffsetDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "Access denied. You don't have permission to access this resource.",
+                request.getRequestURI()
+        );
+        
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
     
     /**

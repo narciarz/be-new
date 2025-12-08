@@ -60,6 +60,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'manager/users',
+        loadComponent: () =>
+          import('../components/admin/user-management/user-management.component').then(
+            (m) => m.UserManagementComponent
+          ),
+      },
+      {
         path: 'manager/team',
         loadComponent: () =>
           import('../components/manager/team/team.component').then((m) => m.TeamComponent),
