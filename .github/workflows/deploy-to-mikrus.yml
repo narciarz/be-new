@@ -23,8 +23,8 @@ jobs:
     - name: Build with Maven (includes Angular frontend)
       run: |
         echo "Building project..."
-#        mvn clean package -DskipTests
         echo "Build completed!"
+#        mvn clean package -DskipTests
 #
 #    - name: Get artifact version
 #      id: get_version
@@ -36,12 +36,11 @@ jobs:
     - name: Prepare JAR for upload
       run: |
         mkdir -p deploy
-#       TODO REMOVE
         echo 'ddsd' > deploy/benew-app.jar
-#        cp benew-services/target/benew-services-*.jar deploy/benew-app.jar
-#        ls -lh deploy/
         echo "JAR file prepared for deployment"
-    
+      #        cp benew-services/target/benew-services-*.jar deploy/benew-app.jar
+      #        ls -lh deploy/
+
     - name: Deploy to Mikr.us via SCP
       uses: appleboy/scp-action@v0.1.7
       with:
