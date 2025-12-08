@@ -1,8 +1,6 @@
 name: Build and Deploy to Mikr.us
 
 on:
-  push:
-    branches: [ "main", "master" ]
   workflow_dispatch: # Pozwala na ręczne uruchomienie
 
 jobs:
