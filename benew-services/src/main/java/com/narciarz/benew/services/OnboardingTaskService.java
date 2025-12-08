@@ -3,7 +3,10 @@ package com.narciarz.benew.services;
 import com.narciarz.benew.exceptions.OnboardingProcessNotFoundException;
 import com.narciarz.benew.exceptions.OnboardingTaskNotFoundException;
 import com.narciarz.benew.models.OnboardingProcess;
+import com.narciarz.benew.models.OnboardingStatus;
 import com.narciarz.benew.models.OnboardingTask;
+import com.narciarz.benew.models.TaskOwnerRole;
+import com.narciarz.benew.models.dto.ManagerTaskResponseDto;
 import com.narciarz.benew.models.dto.OnboardingTaskResponseDto;
 import com.narciarz.benew.models.dto.UpdateOnboardingTaskRequestDto;
 import com.narciarz.benew.repositories.OnboardingProcessRepository;
@@ -182,6 +185,31 @@ public class OnboardingTaskService {
         
         log.info("Synchronized process {} counters: {}/{} tasks completed", 
                 processId, completedCount, totalCount);
+    }
+    
+    /**
+     * Retrieves all tasks assigned to MANAGER for active processes supervised by the given manager.
+     * 
+     * <p>Returns tasks with extended information including employee details.
+     * Used in manager's task view to show all pending MANAGER tasks across their team.</p>
+     * 
+     * @param managerId the manager's user ID
+     * @return list of manager task response DTOs with employee information
+     */
+    public List<ManagerTaskResponseDto> getManagerTasks(UUID managerId) {
+        log.info("Fetching MANAGER tasks for manager: {}", managerId);
+        
+        List<OnboardingTask> tasks = taskRepository.findManagerTasks(
+                managerId, 
+                OnboardingStatus.ACTIVE, 
+                TaskOwnerRole.MANAGER
+        );
+        
+        log.debug("Found {} MANAGER tasks for manager {}", tasks.size(), managerId);
+        
+        return tasks.stream()
+                .map(taskMapper::toManagerTaskResponseDto)
+                .collect(Collectors.toList());
     }
 }
 

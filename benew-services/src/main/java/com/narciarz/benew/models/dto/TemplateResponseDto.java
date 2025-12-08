@@ -1,5 +1,10 @@
 package com.narciarz.benew.models.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -8,6 +13,10 @@ import java.util.UUID;
  * 
  * <p>Used by GET /templates and GET /templates/{templateId} to return template information.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TemplateResponseDto {
     
     /**
@@ -29,51 +38,6 @@ public class TemplateResponseDto {
      * Record last update timestamp.
      */
     private OffsetDateTime updatedAt;
-
-    // Constructors
-    public TemplateResponseDto() {
-    }
-
-    public TemplateResponseDto(UUID id, String positionName, OffsetDateTime createdAt, 
-                              OffsetDateTime updatedAt) {
-        this.id = id;
-        this.positionName = positionName;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    // Getters and Setters
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getPositionName() {
-        return positionName;
-    }
-
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public OffsetDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 
 

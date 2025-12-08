@@ -1,0 +1,84 @@
+<div class="dashboard-container">
+  <mat-toolbar color="primary" class="toolbar">
+    <span class="app-title">Be New</span>
+    <span class="spacer"></span>
+    @if (currentUser(); as user) {
+      <span class="user-info">
+        {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
+      </span>
+      <button mat-icon-button (click)="onLogout()" title="Wyloguj">
+        <mat-icon>logout</mat-icon>
+      </button>
+    }
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav mode="side" opened class="sidenav">
+      <mat-nav-list>
+        <h3 mat-subheader>Menu</h3>
+
+        @if (currentUser()?.role === UserRole.ADMIN) {
+          <a mat-list-item routerLink="/dashboard/admin/users" routerLinkActive="active">
+            <mat-icon matListItemIcon>supervisor_account</mat-icon>
+            <span matListItemTitle>Zarządzanie użytkownikami</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/admin/templates" routerLinkActive="active">
+            <mat-icon matListItemIcon>rule</mat-icon>
+            <span matListItemTitle>Szablony</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/admin/import" routerLinkActive="active">
+            <mat-icon matListItemIcon>cloud_upload</mat-icon>
+            <span matListItemTitle>Import CSV</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/admin/onboarding" routerLinkActive="active">
+            <mat-icon matListItemIcon>assignment_turned_in</mat-icon>
+            <span matListItemTitle>Info</span>
+          </a>
+        }
+
+        @if (currentUser()?.role === UserRole.MANAGER) {
+          <a mat-list-item routerLink="/dashboard/manager/overview" routerLinkActive="active">
+            <mat-icon matListItemIcon>assessment</mat-icon>
+            <span matListItemTitle>Dashboard</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/manager/users" routerLinkActive="active">
+            <mat-icon matListItemIcon>person_add</mat-icon>
+            <span matListItemTitle>Zarządzanie użytkownikami</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/manager/tasks" routerLinkActive="active">
+            <mat-icon matListItemIcon>task_alt</mat-icon>
+            <span matListItemTitle>Moje zadania</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/manager/team" routerLinkActive="active">
+            <mat-icon matListItemIcon>group</mat-icon>
+            <span matListItemTitle>Mój zespół</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/manager/processes" routerLinkActive="active">
+            <mat-icon matListItemIcon>assignment_ind</mat-icon>
+            <span matListItemTitle>Procesy wdrożeniowe</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/manager/archive" routerLinkActive="active">
+            <mat-icon matListItemIcon>archive</mat-icon>
+            <span matListItemTitle>Info</span>
+          </a>
+        }
+
+        @if (currentUser()?.role === UserRole.USER) {
+          <a mat-list-item routerLink="/dashboard/user/checklist" routerLinkActive="active">
+            <mat-icon matListItemIcon>check_circle</mat-icon>
+            <span matListItemTitle>Moja checklista</span>
+          </a>
+          <a mat-list-item routerLink="/dashboard/user/info" routerLinkActive="active">
+            <mat-icon matListItemIcon>help</mat-icon>
+            <span matListItemTitle>Informacje</span>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-content">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+

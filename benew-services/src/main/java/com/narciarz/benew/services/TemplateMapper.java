@@ -20,7 +20,11 @@ import org.mapstruct.*;
  *   <li>ID and timestamps are managed by JPA and excluded from request mappings</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring", 
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface TemplateMapper {
     
     /**

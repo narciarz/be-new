@@ -368,14 +368,12 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should import template successfully")
     void importTemplateFromCsv_ShouldImportSuccessfully() {
-        // Arrange
+        // Arrange - NEW FORMAT: position_name,task_order,task_title,task_description,owner_role
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software and tools,1,USER
-                Meet the team,Introduction meeting with team members,2,MANAGER
-                Review codebase,Familiarize with main repositories,3,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software and tools,USER
+                Software Engineer,2,Meet the team,Introduction meeting with team members,MANAGER
+                Software Engineer,3,Review codebase,Familiarize with main repositories,USER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -489,12 +487,10 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when CSV has invalid header")
     void importTemplateFromCsv_ShouldThrowException_WhenCsvHasInvalidHeader() {
-        // Arrange
+        // Arrange - NEW FORMAT with invalid header
         String csvContent = """
-                invalid_header
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,1,USER
+                invalid_header,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software,USER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -515,13 +511,11 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when position name is too long")
     void importTemplateFromCsv_ShouldThrowException_WhenPositionNameIsTooLong() {
-        // Arrange
+        // Arrange - NEW FORMAT with long position name
         String longPositionName = "A".repeat(51);
         String csvContent = String.format("""
-                position_name
-                %s
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,1,USER
+                position_name,task_order,task_title,task_description,owner_role
+                %s,1,Setup workstation,Install required software,USER
                 """, longPositionName);
         
         MockMultipartFile file = new MockMultipartFile(
@@ -542,12 +536,10 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw DuplicatePositionNameException when position name exists")
     void importTemplateFromCsv_ShouldThrowException_WhenPositionNameExists() {
-        // Arrange
+        // Arrange - NEW FORMAT
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,1,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software,USER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -569,14 +561,12 @@ class TemplateServiceTest {
     }
     
     @Test
-    @DisplayName("importTemplateFromCsv - should throw CsvImportException when task header is missing")
+    @DisplayName("importTemplateFromCsv - should throw CsvImportException when CSV header is incomplete")
     void importTemplateFromCsv_ShouldThrowException_WhenTaskHeaderIsMissing() {
-        // Arrange
+        // Arrange - NEW FORMAT with incomplete header (missing columns)
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description
-                Setup workstation,Install required software
+                position_name,task_order,task_title
+                Software Engineer,1,Setup workstation
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -586,17 +576,11 @@ class TemplateServiceTest {
                 csvContent.getBytes()
         );
         
-        Template savedTemplate = new Template();
-        savedTemplate.setId(testTemplateId);
-        savedTemplate.setPositionName("software engineer");
-        
-        when(templateRepository.existsByPositionNameIgnoreCase("software engineer")).thenReturn(false);
-        when(templateRepository.save(any(Template.class))).thenReturn(savedTemplate);
-        
         // Act & Assert
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("4 columns");
+                .hasMessageContaining("CSV header must contain 5 columns")
+                .hasMessageContaining("position_name, task_order, task_title, task_description, owner_role");
         
         verify(templateTaskRepository, never()).saveAll(anyList());
     }
@@ -604,12 +588,10 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when task_order is invalid")
     void importTemplateFromCsv_ShouldThrowException_WhenTaskOrderIsInvalid() {
-        // Arrange
+        // Arrange - NEW FORMAT with invalid task_order
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,invalid,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,invalid,Setup workstation,Install required software,USER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -625,7 +607,7 @@ class TemplateServiceTest {
         // Act & Assert
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("task_order must be a valid integer");
+                .hasMessageContaining("task_order must be a valid number");
         
         verify(templateTaskRepository, never()).saveAll(anyList());
     }
@@ -633,12 +615,10 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when owner_role is invalid")
     void importTemplateFromCsv_ShouldThrowException_WhenOwnerRoleIsInvalid() {
-        // Arrange
+        // Arrange - NEW FORMAT with invalid owner_role
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,1,INVALID_ROLE
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software,INVALID_ROLE
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -654,7 +634,8 @@ class TemplateServiceTest {
         // Act & Assert
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("owner_role must be either 'MANAGER' or 'USER'");
+                .hasMessageContaining("Invalid owner_role")
+                .hasMessageContaining("USER, MANAGER");
         
         verify(templateTaskRepository, never()).saveAll(anyList());
     }
@@ -662,12 +643,10 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when title is empty")
     void importTemplateFromCsv_ShouldThrowException_WhenTitleIsEmpty() {
-        // Arrange
+        // Arrange - NEW FORMAT with empty task_title
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                ,Install required software,1,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,,Install required software,USER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -683,7 +662,7 @@ class TemplateServiceTest {
         // Act & Assert
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("title is required");
+                .hasMessageContaining("task_title is required");
         
         verify(templateTaskRepository, never()).saveAll(anyList());
     }
@@ -691,11 +670,9 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should throw CsvImportException when CSV has no tasks")
     void importTemplateFromCsv_ShouldThrowException_WhenCsvHasNoTasks() {
-        // Arrange
+        // Arrange - NEW FORMAT with only header
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
+                position_name,task_order,task_title,task_description,owner_role
                 """;
         
         MockMultipartFile file = new MockMultipartFile(
@@ -715,14 +692,12 @@ class TemplateServiceTest {
     @Test
     @DisplayName("importTemplateFromCsv - should skip empty rows in CSV")
     void importTemplateFromCsv_ShouldSkipEmptyRows() {
-        // Arrange
+        // Arrange - NEW FORMAT with empty row
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software,1,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software,USER
                 
-                Meet the team,Introduction meeting,2,MANAGER
+                Software Engineer,2,Meet the team,Introduction meeting,MANAGER
                 """;
         
         MockMultipartFile file = new MockMultipartFile(

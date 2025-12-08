@@ -99,5 +99,22 @@ public interface OnboardingProcessRepository extends JpaRepository<OnboardingPro
            "LEFT JOIN FETCH op.sourceTemplate " +
            "WHERE op IN (SELECT op2 FROM OnboardingProcess op2)")
     Page<OnboardingProcess> findAllWithRelations(Pageable pageable);
+    
+    /**
+     * Count onboarding processes for a specific user.
+     * Used to check if user has processes before deletion.
+     * 
+     * @param userId user's ID
+     * @return count of processes for the user
+     */
+    long countByUserId(UUID userId);
+    
+    /**
+     * Delete all onboarding processes for a specific user.
+     * Used for cascade deletion when removing a user.
+     * 
+     * @param userId user's ID
+     */
+    void deleteByUserId(UUID userId);
 }
 

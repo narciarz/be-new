@@ -1,0 +1,86 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>group</mat-icon>
+      Mój zespół
+    </h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie zespołu...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </mat-card>
+  } @else if (teamMembers().length === 0) {
+    <mat-card class="empty-card">
+      <mat-icon>group</mat-icon>
+      <p>Brak członków zespołu</p>
+    </mat-card>
+  } @else {
+    <div class="team-grid">
+      @for (member of teamMembers(); track member.id) {
+        <mat-card class="member-card" [class.completed]="member.status === 'completed'">
+          <mat-card-header>
+            <div class="member-avatar">
+              <mat-icon>person</mat-icon>
+            </div>
+            <mat-card-title>
+              {{ member.firstName }} {{ member.lastName }}
+            </mat-card-title>
+            <mat-card-subtitle>{{ member.position }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="member-info">
+              <div class="info-row">
+                <mat-icon>email</mat-icon>
+                <span>{{ member.email }}</span>
+              </div>
+              <div class="info-row">
+                <mat-icon>event</mat-icon>
+                <span>Start: {{ member.startDate }}</span>
+              </div>
+            </div>
+
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">Postęp onboardingu</span>
+                <span class="progress-value">{{ member.onboardingProgress }}%</span>
+              </div>
+              <div class="progress-bar-wrapper">
+                <div class="progress-bar" [style.width.%]="member.onboardingProgress"></div>
+              </div>
+            </div>
+
+            <div class="status-section">
+              @if (member.status === 'completed') {
+                <mat-chip class="status-chip completed">
+                  <mat-icon>check_circle</mat-icon>
+                  Ukończony
+                </mat-chip>
+              } @else {
+                <mat-chip class="status-chip active">
+                  <mat-icon>trending_up</mat-icon>
+                  W trakcie
+                </mat-chip>
+              }
+            </div>
+          </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button (click)="onViewDetails(member.id)">
+            <mat-icon>visibility</mat-icon>
+            Zobacz szczegóły
+          </button>
+        </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
+

@@ -20,7 +20,11 @@ import org.mapstruct.*;
  *   <li>ID and timestamps are managed by JPA and excluded from request mappings</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring", 
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface OnboardingMapper {
     
     /**
@@ -54,7 +58,8 @@ public interface OnboardingMapper {
      * Updates an existing OnboardingProcess entity with data from UpdateOnboardingProcessRequestDto.
      * 
      * <p>Only non-null fields in the DTO are applied to the entity, allowing
-     * partial updates. Typically used for:</p>
+     * partial updates. This is controlled by {@code nullValuePropertyMappingStrategy = IGNORE}
+     * at the mapper level. Typically used for:</p>
      * <ul>
      *   <li>Archiving process (status = ARCHIVED)</li>
      *   <li>Manually adjusting task counters if needed</li>

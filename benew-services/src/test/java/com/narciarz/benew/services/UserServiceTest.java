@@ -9,22 +9,34 @@ import com.narciarz.benew.models.UserRole;
 import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
+import com.narciarz.benew.repositories.OnboardingProcessRepository;
+import com.narciarz.benew.repositories.OnboardingTaskRepository;
+import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +44,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Unit tests for UserService.
@@ -52,21 +65,54 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     
+    @Mock
+    private TemplateRepository templateRepository;
+    
+    @Mock
+    private OnboardingService onboardingService;
+    
+    @Mock
+    private OnboardingProcessRepository onboardingProcessRepository;
+    
+    @Mock
+    private OnboardingTaskRepository onboardingTaskRepository;
+    
+    @Mock
+    private SecurityContext securityContext;
+    
+    @Mock
+    private Authentication authentication;
+    
     @InjectMocks
     private UserService userService;
     
     private AppUser testUser;
     private AppUser testManager;
+    private AppUser testAdmin;
     private CreateUserRequestDto createUserDto;
     private UpdateUserRequestDto updateUserDto;
     private UserResponseDto userResponseDto;
     private UUID testUserId;
     private UUID testManagerId;
+    private UUID testAdminId;
     
     @BeforeEach
     void setUp() {
         testUserId = UUID.randomUUID();
         testManagerId = UUID.randomUUID();
+        testAdminId = UUID.randomUUID();
+        
+        // Setup test admin
+        testAdmin = new AppUser();
+        testAdmin.setId(testAdminId);
+        testAdmin.setEmail("admin@example.com");
+        testAdmin.setPasswordHash("hashedPassword");
+        testAdmin.setRole(UserRole.ADMIN);
+        testAdmin.setFirstName("Admin");
+        testAdmin.setLastName("User");
+        testAdmin.setPositionName("administrator");
+        testAdmin.setCreatedAt(OffsetDateTime.now());
+        testAdmin.setUpdatedAt(OffsetDateTime.now());
         
         // Setup test manager
         testManager = new AppUser();
@@ -128,12 +174,68 @@ class UserServiceTest {
         );
     }
     
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+    
+    /**
+     * Helper method to mock authentication with ADMIN role.
+     */
+    private void mockAdminAuthentication() {
+        mockAuthentication(testAdminId, UserRole.ADMIN);
+    }
+    
+    /**
+     * Helper method to mock authentication with MANAGER role.
+     */
+    private void mockManagerAuthentication() {
+        mockAuthentication(testManagerId, UserRole.MANAGER);
+    }
+    
+    /**
+     * Helper method to mock authentication with USER role.
+     */
+    private void mockUserAuthentication() {
+        mockAuthentication(testUserId, UserRole.USER);
+    }
+    
+    /**
+     * Helper method to mock authentication for a specific user and role.
+     * 
+     * @param userId the user ID to mock
+     * @param role the user role to mock
+     */
+    private void mockAuthentication(UUID userId, UserRole role) {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("alg", "HS256");
+        
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", userId.toString());
+        claims.put("role", role.name());
+        claims.put("email", "test@example.com");
+        
+        Jwt jwt = new Jwt(
+                "test-token",
+                Instant.now(),
+                Instant.now().plusSeconds(3600),
+                headers,
+                claims
+        );
+        
+        lenient().when(authentication.getPrincipal()).thenReturn(jwt);
+        lenient().when(authentication.isAuthenticated()).thenReturn(true);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+    
     // ========== GET Operations Tests ==========
     
     @Test
-    @DisplayName("getAllUsers - should return paginated users")
+    @DisplayName("getAllUsers - should return paginated users for ADMIN")
     void getAllUsers_ShouldReturnPaginatedUsers() {
         // Arrange
+        mockAdminAuthentication();
         Pageable pageable = PageRequest.of(0, 20);
         Page<AppUser> userPage = new PageImpl<>(List.of(testUser));
         when(userRepository.findAll(pageable)).thenReturn(userPage);
@@ -151,9 +253,10 @@ class UserServiceTest {
     }
     
     @Test
-    @DisplayName("getUsersByRole - should return users filtered by role")
+    @DisplayName("getUsersByRole - should return users filtered by role for ADMIN")
     void getUsersByRole_ShouldReturnFilteredUsers() {
         // Arrange
+        mockAdminAuthentication();
         Pageable pageable = PageRequest.of(0, 20);
         Page<AppUser> userPage = new PageImpl<>(List.of(testUser));
         when(userRepository.findByRole(UserRole.USER, pageable)).thenReturn(userPage);
@@ -169,9 +272,10 @@ class UserServiceTest {
     }
     
     @Test
-    @DisplayName("getUserById - should return user when found")
+    @DisplayName("getUserById - should return user when found (ADMIN)")
     void getUserById_ShouldReturnUser_WhenUserExists() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
         when(userMapper.toResponseDto(testUser)).thenReturn(userResponseDto);
         
@@ -189,6 +293,7 @@ class UserServiceTest {
     @DisplayName("getUserById - should throw UserNotFoundException when user not found")
     void getUserById_ShouldThrowException_WhenUserNotFound() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.findById(testUserId)).thenReturn(Optional.empty());
         
         // Act & Assert
@@ -206,6 +311,7 @@ class UserServiceTest {
     @DisplayName("createUser - should create user successfully with manager")
     void createUser_ShouldCreateSuccessfully_WithManager() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.existsByEmailIgnoreCase(createUserDto.getEmail())).thenReturn(false);
         when(userMapper.toEntity(createUserDto)).thenReturn(testUser);
         when(passwordEncoder.encode(createUserDto.getPassword())).thenReturn("hashedPassword123");
@@ -231,6 +337,7 @@ class UserServiceTest {
     @DisplayName("createUser - should create user without manager")
     void createUser_ShouldCreateSuccessfully_WithoutManager() {
         // Arrange
+        mockAdminAuthentication();
         CreateUserRequestDto dtoNoManager = new CreateUserRequestDto(
                 "admin@example.com",
                 "password123",
@@ -263,6 +370,7 @@ class UserServiceTest {
     @DisplayName("createUser - should throw DuplicateEmailException when email exists")
     void createUser_ShouldThrowException_WhenEmailExists() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.existsByEmailIgnoreCase(createUserDto.getEmail())).thenReturn(true);
         
         // Act & Assert
@@ -278,6 +386,7 @@ class UserServiceTest {
     @DisplayName("createUser - should throw InvalidManagerException when manager not found")
     void createUser_ShouldThrowException_WhenManagerNotFound() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.existsByEmailIgnoreCase(createUserDto.getEmail())).thenReturn(false);
         when(userMapper.toEntity(createUserDto)).thenReturn(testUser);
         when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
@@ -296,6 +405,7 @@ class UserServiceTest {
     @DisplayName("createUser - should normalize position name")
     void createUser_ShouldNormalizePositionName() {
         // Arrange
+        mockAdminAuthentication();
         CreateUserRequestDto dtoWithPosition = new CreateUserRequestDto(
                 "test@example.com",
                 "password123",
@@ -331,6 +441,7 @@ class UserServiceTest {
     @DisplayName("updateUser - should update user successfully")
     void updateUser_ShouldUpdateSuccessfully() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByEmailIgnoreCase(updateUserDto.getEmail())).thenReturn(false);
         doNothing().when(userMapper).updateEntityFromDto(updateUserDto, testUser);
@@ -351,6 +462,7 @@ class UserServiceTest {
     @DisplayName("updateUser - should throw UserNotFoundException when user not found")
     void updateUser_ShouldThrowException_WhenUserNotFound() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.findById(testUserId)).thenReturn(Optional.empty());
         
         // Act & Assert
@@ -366,6 +478,7 @@ class UserServiceTest {
     @DisplayName("updateUser - should throw DuplicateEmailException when new email exists")
     void updateUser_ShouldThrowException_WhenNewEmailExists() {
         // Arrange
+        mockAdminAuthentication();
         when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByEmailIgnoreCase(updateUserDto.getEmail())).thenReturn(true);
         
@@ -382,6 +495,7 @@ class UserServiceTest {
     @DisplayName("updateUser - should hash password when provided")
     void updateUser_ShouldHashPassword_WhenProvided() {
         // Arrange
+        mockAdminAuthentication();
         UpdateUserRequestDto dtoWithPassword = new UpdateUserRequestDto(
                 null,
                 "newPassword123",
@@ -409,19 +523,22 @@ class UserServiceTest {
     // ========== DELETE Operation Tests ==========
     
     @Test
-    @DisplayName("deleteUser - should delete user successfully when no employees")
+    @DisplayName("deleteUser - should delete user successfully when no employees and no onboarding")
     void deleteUser_ShouldDeleteSuccessfully_WhenNoEmployees() {
         // Arrange
-        when(userRepository.existsById(testUserId)).thenReturn(true);
+        mockAdminAuthentication();
+        when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
         when(userRepository.countByManagerId(testUserId)).thenReturn(0L);
+        when(onboardingProcessRepository.countByUserId(testUserId)).thenReturn(0L);
         doNothing().when(userRepository).deleteById(testUserId);
         
         // Act
         userService.deleteUser(testUserId);
         
         // Assert
-        verify(userRepository).existsById(testUserId);
+        verify(userRepository).findById(testUserId);
         verify(userRepository).countByManagerId(testUserId);
+        verify(onboardingProcessRepository).countByUserId(testUserId);
         verify(userRepository).deleteById(testUserId);
     }
     
@@ -429,14 +546,15 @@ class UserServiceTest {
     @DisplayName("deleteUser - should throw UserNotFoundException when user not found")
     void deleteUser_ShouldThrowException_WhenUserNotFound() {
         // Arrange
-        when(userRepository.existsById(testUserId)).thenReturn(false);
+        mockAdminAuthentication();
+        when(userRepository.findById(testUserId)).thenReturn(Optional.empty());
         
         // Act & Assert
         assertThatThrownBy(() -> userService.deleteUser(testUserId))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining(testUserId.toString());
         
-        verify(userRepository).existsById(testUserId);
+        verify(userRepository).findById(testUserId);
         verify(userRepository, never()).deleteById(any());
     }
     
@@ -444,7 +562,8 @@ class UserServiceTest {
     @DisplayName("deleteUser - should throw UserDeletionException when user has employees")
     void deleteUser_ShouldThrowException_WhenUserHasEmployees() {
         // Arrange
-        when(userRepository.existsById(testUserId)).thenReturn(true);
+        mockAdminAuthentication();
+        when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
         when(userRepository.countByManagerId(testUserId)).thenReturn(3L);
         
         // Act & Assert
@@ -452,7 +571,7 @@ class UserServiceTest {
                 .isInstanceOf(UserDeletionException.class)
                 .hasMessageContaining("3 employee(s)");
         
-        verify(userRepository).existsById(testUserId);
+        verify(userRepository).findById(testUserId);
         verify(userRepository).countByManagerId(testUserId);
         verify(userRepository, never()).deleteById(any());
     }

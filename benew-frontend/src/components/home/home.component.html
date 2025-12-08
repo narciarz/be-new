@@ -1,0 +1,36 @@
+<div class="page-container">
+  <h1>Witaj w Be New!</h1>
+
+  @if (currentUser(); as user) {
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>Panel {{ user.role }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Witaj, <strong>{{ user.firstName }} {{ user.lastName }}</strong>!</p>
+
+        @if (user.role === UserRole.ADMIN) {
+          <p>
+            Jako administrator masz pełny dostęp do systemu. Możesz zarządzać użytkownikami,
+            tworzyć i edytować szablony oraz monitorować wszystkie procesy wdrożeniowe.
+          </p>
+        }
+
+        @if (user.role === UserRole.MANAGER) {
+          <p>
+            Jako menedżer możesz zarządzać wdrożeniami swojego zespołu, monitorować postępy i
+            aktualizować statusy zadań.
+          </p>
+        }
+
+        @if (user.role === UserRole.USER) {
+          <p>
+            Witaj w procesie wdrożeniowym! W zakładce "Moja checklista" znajdziesz wszystkie
+            zadania, które musisz wykonać.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

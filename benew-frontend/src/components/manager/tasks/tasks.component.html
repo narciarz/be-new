@@ -1,0 +1,116 @@
+<div class="tasks-container">
+  <div class="header">
+    <h1>
+      <mat-icon>task_alt</mat-icon>
+      Moje zadania menedżerskie
+    </h1>
+    <button mat-raised-button color="primary" (click)="onRefresh()" [disabled]="isLoading()">
+      <mat-icon>refresh</mat-icon>
+      Odśwież
+    </button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-value">{{ stats().total }}</div>
+        <div class="stat-label">Wszystkie zadania</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card pending">
+      <mat-card-content>
+        <div class="stat-value">{{ stats().pending }}</div>
+        <div class="stat-label">Do wykonania</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card completed">
+      <mat-card-content>
+        <div class="stat-value">{{ stats().completed }}</div>
+        <div class="stat-label">Ukończone</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Ładowanie zadań...</p>
+  </div>
+
+  <!-- Error Message -->
+  <mat-card *ngIf="errorMessage()" class="error-card">
+    <mat-card-content>
+      <mat-icon color="warn">error</mat-icon>
+      {{ errorMessage() }}
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Empty State -->
+  <mat-card *ngIf="!isLoading() && !errorMessage() && taskGroups().length === 0" class="empty-state">
+    <mat-card-content>
+      <mat-icon>check_circle</mat-icon>
+      <h2>Brak zadań do wykonania</h2>
+      <p>Wszystkie zadania menedżerskie zostały ukończone!</p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Task Groups (by Employee) -->
+  <div *ngIf="!isLoading() && !errorMessage() && taskGroups().length > 0" class="tasks-list">
+    <mat-accordion multi>
+      <mat-expansion-panel *ngFor="let group of taskGroups()" [expanded]="getPendingTasksCount(group) > 0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="employee-header">
+              <mat-icon>person</mat-icon>
+              <div class="employee-info">
+                <span class="employee-name">{{ group.userName }}</span>
+                <span class="employee-position">{{ group.userPosition }}</span>
+              </div>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-chip-set>
+              <mat-chip *ngIf="getPendingTasksCount(group) > 0" class="pending-chip">
+                {{ getPendingTasksCount(group) }} do wykonania
+              </mat-chip>
+              <mat-chip *ngIf="getPendingTasksCount(group) === 0" class="completed-chip">
+                <mat-icon>check</mat-icon>
+                Wszystkie ukończone
+              </mat-chip>
+            </mat-chip-set>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <!-- Tasks for this employee -->
+        <div class="tasks-content">
+          <div *ngFor="let task of group.tasks" class="task-item" [class.completed]="task.isCompleted">
+            <mat-checkbox
+              [checked]="task.isCompleted"
+              (change)="onToggleTask(task)"
+              color="primary"
+            ></mat-checkbox>
+
+            <div class="task-details">
+              <div class="task-header">
+                <h3 [class.completed-text]="task.isCompleted">{{ task.title }}</h3>
+                <mat-chip class="order-chip">{{ task.taskOrder }}</mat-chip>
+              </div>
+              <p class="task-description" [class.completed-text]="task.isCompleted">
+                {{ task.description || 'Brak opisu' }}
+              </p>
+              <div class="task-meta">
+                <span class="meta-item">
+                  <mat-icon>access_time</mat-icon>
+                  {{ task.createdAt ? (task.createdAt | date: 'short') : 'N/A' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

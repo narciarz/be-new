@@ -93,4 +93,60 @@ public interface UserRepository extends JpaRepository<AppUser, UUID> {
     @Query("SELECT u FROM AppUser u LEFT JOIN FETCH u.manager WHERE u IN " +
            "(SELECT u2 FROM AppUser u2)")
     Page<AppUser> findAllWithManager(Pageable pageable);
+    
+    /**
+     * Find users by manager ID and role with pagination.
+     * 
+     * @param managerId manager's user ID
+     * @param role user role filter
+     * @param pageable pagination parameters
+     * @return page of users matching manager and role
+     */
+    Page<AppUser> findByManagerIdAndRole(UUID managerId, UserRole role, Pageable pageable);
+    
+    /**
+     * Find users by manager ID and position name (case-insensitive, partial match).
+     * 
+     * @param managerId manager's user ID
+     * @param positionName position name to search
+     * @param pageable pagination parameters
+     * @return page of users matching manager and position
+     */
+    Page<AppUser> findByManagerIdAndPositionNameContainingIgnoreCase(
+            UUID managerId, String positionName, Pageable pageable);
+    
+    /**
+     * Find users by manager ID and last name (case-insensitive, partial match).
+     * 
+     * @param managerId manager's user ID
+     * @param lastName last name to search
+     * @param pageable pagination parameters
+     * @return page of users matching manager and last name
+     */
+    Page<AppUser> findByManagerIdAndLastNameContainingIgnoreCase(
+            UUID managerId, String lastName, Pageable pageable);
+    
+    /**
+     * Find users by manager ID, role, and position name (case-insensitive, partial match).
+     * 
+     * @param managerId manager's user ID
+     * @param role user role filter
+     * @param positionName position name to search
+     * @param pageable pagination parameters
+     * @return page of users matching manager, role, and position
+     */
+    Page<AppUser> findByManagerIdAndRoleAndPositionNameContainingIgnoreCase(
+            UUID managerId, UserRole role, String positionName, Pageable pageable);
+    
+    /**
+     * Find users by manager ID, role, and last name (case-insensitive, partial match).
+     * 
+     * @param managerId manager's user ID
+     * @param role user role filter
+     * @param lastName last name to search
+     * @param pageable pagination parameters
+     * @return page of users matching manager, role, and last name
+     */
+    Page<AppUser> findByManagerIdAndRoleAndLastNameContainingIgnoreCase(
+            UUID managerId, UserRole role, String lastName, Pageable pageable);
 }

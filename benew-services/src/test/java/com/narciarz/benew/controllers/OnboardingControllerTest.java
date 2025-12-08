@@ -98,7 +98,7 @@ class OnboardingControllerTest {
     }
     
     @Test
-    @DisplayName("GET /onboarding should return page of processes")
+    @DisplayName("GET /api/onboarding should return page of processes")
     void shouldGetAllProcesses() throws Exception {
         // Arrange
         List<OnboardingProcessResponseDto> processes = Arrays.asList(processResponseDto);
@@ -108,7 +108,7 @@ class OnboardingControllerTest {
                 .thenReturn(processPage);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding")
+        mockMvc.perform(get("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
@@ -132,7 +132,7 @@ class OnboardingControllerTest {
                 .thenReturn(processPage);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding")
+        mockMvc.perform(get("/api/onboarding")
                         .param("status", "ACTIVE")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -143,7 +143,7 @@ class OnboardingControllerTest {
     }
     
     @Test
-    @DisplayName("GET /onboarding with managerId filter should return filtered processes")
+    @DisplayName("GET /api/onboarding with managerId filter should return filtered processes")
     void shouldGetProcessesFilteredByManager() throws Exception {
         // Arrange
         List<OnboardingProcessResponseDto> processes = Arrays.asList(processResponseDto);
@@ -153,7 +153,7 @@ class OnboardingControllerTest {
                 .thenReturn(processPage);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding")
+        mockMvc.perform(get("/api/onboarding")
                         .param("managerId", managerId.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -164,13 +164,13 @@ class OnboardingControllerTest {
     }
     
     @Test
-    @DisplayName("GET /onboarding/{processId} should return process details")
+    @DisplayName("GET /api/onboarding/{processId} should return process details")
     void shouldGetProcessById() throws Exception {
         // Arrange
         when(onboardingService.getProcessById(processId)).thenReturn(processResponseDto);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(processId.toString()))
@@ -192,7 +192,7 @@ class OnboardingControllerTest {
                 .thenThrow(new OnboardingProcessNotFoundException(processId));
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding/{processId}", processId)
+        mockMvc.perform(get("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString(processId.toString())));
@@ -208,7 +208,7 @@ class OnboardingControllerTest {
                 .thenReturn(processResponseDto);
         
         // Act & Assert
-        mockMvc.perform(post("/onboarding")
+        mockMvc.perform(post("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createProcessDto)))
                 .andExpect(status().isCreated())
@@ -228,7 +228,7 @@ class OnboardingControllerTest {
         CreateOnboardingProcessRequestDto invalidDto = new CreateOnboardingProcessRequestDto(null, null, null);
         
         // Act & Assert
-        mockMvc.perform(post("/onboarding")
+        mockMvc.perform(post("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
@@ -244,7 +244,7 @@ class OnboardingControllerTest {
                 .thenThrow(new UserNotFoundException(userId));
         
         // Act & Assert
-        mockMvc.perform(post("/onboarding")
+        mockMvc.perform(post("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createProcessDto)))
                 .andExpect(status().isNotFound())
@@ -261,7 +261,7 @@ class OnboardingControllerTest {
                 .thenThrow(new TemplateNotFoundException(templateId));
         
         // Act & Assert
-        mockMvc.perform(post("/onboarding")
+        mockMvc.perform(post("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createProcessDto)))
                 .andExpect(status().isNotFound())
@@ -284,7 +284,7 @@ class OnboardingControllerTest {
                 .thenReturn(updatedDto);
         
         // Act & Assert
-        mockMvc.perform(put("/onboarding/{processId}", processId)
+        mockMvc.perform(put("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateProcessDto)))
                 .andExpect(status().isOk())
@@ -303,7 +303,7 @@ class OnboardingControllerTest {
                 .thenThrow(new OnboardingProcessNotFoundException(processId));
         
         // Act & Assert
-        mockMvc.perform(put("/onboarding/{processId}", processId)
+        mockMvc.perform(put("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateProcessDto)))
                 .andExpect(status().isNotFound())
@@ -319,7 +319,7 @@ class OnboardingControllerTest {
         doNothing().when(onboardingService).deleteProcess(processId);
         
         // Act & Assert
-        mockMvc.perform(delete("/onboarding/{processId}", processId)
+        mockMvc.perform(delete("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         
@@ -334,7 +334,7 @@ class OnboardingControllerTest {
                 .when(onboardingService).deleteProcess(processId);
         
         // Act & Assert
-        mockMvc.perform(delete("/onboarding/{processId}", processId)
+        mockMvc.perform(delete("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString(processId.toString())));
@@ -350,7 +350,7 @@ class OnboardingControllerTest {
                 .when(onboardingService).deleteProcess(processId);
         
         // Act & Assert
-        mockMvc.perform(delete("/onboarding/{processId}", processId)
+        mockMvc.perform(delete("/api/onboarding/{processId}", processId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(containsString(processId.toString())))
@@ -369,7 +369,7 @@ class OnboardingControllerTest {
                 .thenReturn(processPage);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding")
+        mockMvc.perform(get("/api/onboarding")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
@@ -387,7 +387,7 @@ class OnboardingControllerTest {
                 .thenReturn(processPage);
         
         // Act & Assert
-        mockMvc.perform(get("/onboarding")
+        mockMvc.perform(get("/api/onboarding")
                         .param("page", "1")
                         .param("size", "5")
                         .param("sort", "updatedAt,asc")

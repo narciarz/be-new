@@ -1,0 +1,93 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>supervisor_account</mat-icon>
+      Zarządzanie użytkownikami
+    </h1>
+    <button mat-raised-button color="primary" (click)="onAddUser()">
+      <mat-icon>person_add</mat-icon>
+      Dodaj użytkownika
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie użytkowników...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-raised-button color="primary" (click)="ngOnInit()">Spróbuj ponownie</button>
+    </mat-card>
+  } @else {
+    <mat-card class="content-card">
+      <mat-card-content>
+        <div class="search-bar">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Szukaj użytkownika</mat-label>
+            <input 
+              matInput 
+              placeholder="Email, imię lub nazwisko..." 
+              [value]="searchQuery()"
+              (input)="onSearchChange($event)" />
+            <mat-icon matPrefix>search</mat-icon>
+            @if (searchQuery()) {
+              <button matSuffix mat-icon-button (click)="searchQuery.set('')" title="Wyczyść">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="table-container">
+          <table mat-table [dataSource]="users()" class="users-table">
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef>Imię</th>
+            <td mat-cell *matCellDef="let user">{{ user.firstName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastName">
+            <th mat-header-cell *matHeaderCellDef>Nazwisko</th>
+            <td mat-cell *matCellDef="let user">{{ user.lastName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Rola</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="role-badge" [class]="'role-' + user.role.toLowerCase()">
+                {{ user.role }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Akcje</th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-icon-button (click)="onEditUser(user.id)" title="Edytuj">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onResetPassword(user.id)" title="Resetuj hasło">
+                <mat-icon>lock_reset</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onDeleteUser(user.id)" title="Usuń">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

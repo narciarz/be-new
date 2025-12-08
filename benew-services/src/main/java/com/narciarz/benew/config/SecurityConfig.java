@@ -1,6 +1,7 @@
 package com.narciarz.benew.config;
 
 import com.narciarz.benew.services.JwtService;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -17,8 +18,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 
 /**
  * Security configuration for the application.
@@ -61,6 +66,46 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    /**
+     * Configures CORS (Cross-Origin Resource Sharing) for the application.
+     * 
+     * <p>Allows frontend application running on different origin (e.g., http://localhost:4200)
+     * to make requests to this backend API.</p>
+     * 
+     * @return CORS configuration source
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Allow requests from Angular development server
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:4200",
+            "http://localhost:4201",
+            "http://127.0.0.1:4200"
+        ));
+        
+        // Allow all HTTP methods
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        
+        // Allow all headers
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Allow credentials (cookies, authorization headers)
+        configuration.setAllowCredentials(true);
+        
+        // Expose Authorization header to frontend
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        
+        // Cache preflight response for 1 hour
+        configuration.setMaxAge(3600L);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        
+        return source;
     }
 
     /**
@@ -156,6 +201,7 @@ public class SecurityConfig {
     @Profile({"!test"}) // Activate for all profiles except test
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -166,12 +212,28 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // Static frontend assets (Angular build served from classpath:/static)
+                        .requestMatchers(
+                                "/",
+                                "/*.js",
+                                "/*.css",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/manifest.webmanifest",
+                                "/assets/**",
+                                "/static/**"
+                        ).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         
                         // User management endpoints
                         .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
                         
                         // Template management endpoints (admin only)
                         .requestMatchers("/api/templates/**").hasRole("ADMIN")
+                        
+                        // Manager-specific endpoints (manager and admin only)
+                        .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         
                         // Onboarding process endpoints
                         .requestMatchers("/api/onboarding/**").hasAnyRole("ADMIN", "MANAGER", "USER")

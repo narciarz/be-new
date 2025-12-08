@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -78,9 +79,10 @@ public class UserController {
      * @return page of user response DTOs
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(
         summary = "Get all users",
-        description = "Retrieves paginated list of users with optional filtering by role, manager, position, or last name"
+        description = "Retrieves paginated list of users with optional filtering by role, manager, position, or last name. MANAGER role returns only their team members."
     )
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(
             @Parameter(description = "Filter by user role (ADMIN, MANAGER, USER)")
@@ -123,6 +125,7 @@ public class UserController {
      * @throws com.narciarz.benew.exceptions.UserNotFoundException if user doesn't exist (404)
      */
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable UUID userId) {
         log.debug("GET /api/users/{}", userId);
         UserResponseDto user = userService.getUserById(userId);
@@ -153,6 +156,7 @@ public class UserController {
      * @throws com.narciarz.benew.exceptions.InvalidManagerException if manager ID invalid (400)
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto dto) {
         log.info("POST /api/users - creating user with email: {}", dto.getEmail());
         UserResponseDto createdUser = userService.createUser(dto);
@@ -184,6 +188,7 @@ public class UserController {
      * @throws com.narciarz.benew.exceptions.InvalidManagerException if manager ID invalid (400)
      */
     @PutMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserRequestDto dto) {
@@ -204,6 +209,7 @@ public class UserController {
      * @throws com.narciarz.benew.exceptions.UserDeletionException if deletion not allowed (400)
      */
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
         log.info("DELETE /api/users/{} - deleting user", userId);
         userService.deleteUser(userId);

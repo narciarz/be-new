@@ -25,8 +25,9 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>25</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<lombok.version>1.18.36</lombok.version>
+		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,6 +59,12 @@
 		<groupId>org.mapstruct</groupId>
 		<artifactId>mapstruct</artifactId>
 		<version>${mapstruct.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>${lombok.version}</version>
+		<scope>provided</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.postgresql</groupId>
@@ -127,6 +134,12 @@
 		<version>0.12.6</version>
 		<scope>runtime</scope>
 	</dependency>
+	<!-- Explicit byte-buddy-agent for Java 21 compatibility -->
+	<dependency>
+		<groupId>net.bytebuddy</groupId>
+		<artifactId>byte-buddy-agent</artifactId>
+		<scope>test</scope>
+	</dependency>
 	</dependencies>
 
 	<build>
@@ -159,9 +172,19 @@
 					<target>${java.version}</target>
 					<annotationProcessorPaths>
 						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${mapstruct.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>${lombok-mapstruct-binding.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -171,9 +194,14 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>
+						-XX:+EnableDynamicAgentLoading
+						-Djdk.instrument.traceUsage=false
 						-Dnet.bytebuddy.experimental=true
 						--add-opens java.base/java.lang=ALL-UNNAMED
 						--add-opens java.base/java.util=ALL-UNNAMED
+						--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+						--add-opens java.base/java.time=ALL-UNNAMED
+						--add-opens java.base/java.io=ALL-UNNAMED
 					</argLine>
 				</configuration>
 			</plugin>
@@ -204,7 +232,7 @@
                 <executions>
                     <execution>
                         <id>merge</id>
-                        <phase>initialize</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>

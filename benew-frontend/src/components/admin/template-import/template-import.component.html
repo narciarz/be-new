@@ -1,0 +1,126 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>cloud_upload</mat-icon>
+      Import szablonów z CSV
+    </h1>
+  </div>
+
+  <div class="import-container">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info</mat-icon>
+          Instrukcja
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <h3>Jak zaimportować szablon onboardingowy?</h3>
+        <ol>
+          <li>Pobierz przykładowy szablon CSV używając przycisku poniżej</li>
+          <li>Otwórz plik w edytorze (Excel, Google Sheets, Notatnik)</li>
+          <li>
+            <strong>Format pliku CSV:</strong>
+            <ul>
+              <li>Pierwsza linia zawiera nagłówki kolumn</li>
+              <li>Każda kolejna linia to jedno zadanie dla stanowiska</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Wymagane kolumny (w tej kolejności):</strong>
+            <ul>
+              <li><code>position_name</code> - nazwa stanowiska (np. "IT DevOps")</li>
+              <li><code>task_order</code> - kolejność zadania (liczba: 1, 2, 3...)</li>
+              <li><code>task_title</code> - tytuł zadania</li>
+              <li><code>task_description</code> - opis zadania (opcjonalnie)</li>
+              <li><code>owner_role</code> - kto wykonuje zadanie: <strong>USER</strong> lub <strong>MANAGER</strong></li>
+            </ul>
+          </li>
+          <li>
+            <strong>Właściciel zadania (owner_role):</strong>
+            <ul class="owner-role-list">
+              <li><code class="owner-role-code">USER</code> - zadanie wykonywane przez nowego pracownika</li>
+              <li><code class="owner-role-code">MANAGER</code> - zadanie wykonywane przez menedżera</li>
+            </ul>
+          </li>
+          <li>Zapisz plik i prześlij go za pomocą przycisku powyżej</li>
+        </ol>
+
+        <div class="download-section">
+          <button mat-raised-button color="primary" (click)="onDownloadTemplate()">
+            <mat-icon>download</mat-icon>
+            Pobierz szablon CSV
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="upload-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>cloud_upload</mat-icon>
+          Prześlij plik CSV
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!isUploading() && !uploadResult()) {
+          <div class="upload-zone">
+            <mat-icon class="upload-icon">publish</mat-icon>
+            <p>Kliknij aby wybrać plik CSV</p>
+            <input
+              type="file"
+              accept=".csv"
+              (change)="onFileSelected($event)"
+              class="file-input"
+            />
+          </div>
+        }
+
+        @if (isUploading()) {
+          <div class="upload-progress">
+            <mat-icon class="spinner">hourglass_empty</mat-icon>
+            <p>Przesyłanie pliku...</p>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          </div>
+        }
+
+        @if (uploadResult()) {
+          <div
+            class="upload-result"
+            [class.success]="uploadResult()?.success"
+            [class.error]="!uploadResult()?.success"
+          >
+            <mat-icon>
+              {{ uploadResult()?.success ? 'check_circle' : 'error' }}
+            </mat-icon>
+            <p>{{ uploadResult()?.message }}</p>
+            @if (uploadResult()?.tasksImported) {
+              <p class="tasks-count">Zaimportowano {{ uploadResult()?.tasksImported }} zadań</p>
+            }
+            <button mat-raised-button color="primary" (click)="onReset()">
+              <mat-icon>refresh</mat-icon>
+              Prześlij kolejny plik
+            </button>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="example-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>visibility</mat-icon>
+          Przykład pliku CSV
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <pre class="csv-example">position_name,task_order,task_title,task_description,owner_role
+IT DevOps,1,Workspace - laptop,Laptop configuration,USER
+IT DevOps,2,Team introduction,Meet with the team,MANAGER
+IT DevOps,3,Review codebase,Familiarize with repositories,USER</pre
+        >
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+

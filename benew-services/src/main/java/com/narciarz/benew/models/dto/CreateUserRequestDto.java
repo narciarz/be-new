@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -14,6 +18,10 @@ import java.util.UUID;
  * <p>Used by POST /users to create a new user account.
  * Includes establishing manager relationships (if applicable) and assigning roles.</p>
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserRequestDto {
     
     /**
@@ -62,77 +70,5 @@ public class CreateUserRequestDto {
      */
     @NotNull(message = "Role is required")
     private UserRole role;
-
-    // Constructors
-    public CreateUserRequestDto() {
-    }
-
-    public CreateUserRequestDto(String email, String password, String firstName, String lastName,
-                               String positionName, UUID managerId, UserRole role) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.positionName = positionName;
-        this.managerId = managerId;
-        this.role = role;
-    }
-
-    // Getters and Setters
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPositionName() {
-        return positionName;
-    }
-
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public UUID getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(UUID managerId) {
-        this.managerId = managerId;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
 }
 

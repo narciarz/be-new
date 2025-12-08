@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>
+  @if (isEditMode) {
+    Edytuj szablon
+  } @else {
+    Dodaj szablon
+  }
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="templateForm" class="template-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nazwa stanowiska</mat-label>
+      <input matInput formControlName="positionName" placeholder="Software Developer" />
+      @if (getErrorMessage('positionName')) {
+        <mat-error>{{ getErrorMessage('positionName') }}</mat-error>
+      }
+      <mat-hint>Unikalna nazwa stanowiska dla tego szablonu</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Opis (opcjonalnie)</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="3"
+        placeholder="Szablon onboardingu dla programistów..."
+      ></textarea>
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <div class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSaving()">Anuluj</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="isSaving()">
+    @if (isSaving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      Zapisywanie...
+    } @else if (isEditMode) {
+      Zapisz zmiany
+    } @else {
+      Utwórz szablon
+    }
+  </button>
+</mat-dialog-actions>
+

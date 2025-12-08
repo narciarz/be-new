@@ -1,0 +1,97 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>check_circle</mat-icon>
+      Moja checklista onboardingu
+    </h1>
+  </div>
+
+  @if (isLoading()) {
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <mat-spinner></mat-spinner>
+        <p>Ładowanie checklisty...</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon>error</mat-icon>
+        <p>{{ errorMessage() }}</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card class="progress-card">
+      <mat-card-content>
+        <div class="progress-header">
+          <div>
+            <h2>Twój postęp</h2>
+            <p>
+              Ukończono
+              {{ getCompletedTasksCount() }} z {{ tasks().length }} zadań
+            </p>
+          </div>
+          <div class="progress-percentage">{{ progress() }}%</div>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="checklist-container">
+      @for (task of tasks(); track task.id) {
+        <mat-card class="task-card" [class.completed]="task.isCompleted">
+          <mat-card-content>
+            <div class="task-main">
+              <mat-checkbox
+                [checked]="task.isCompleted"
+                [disabled]="task.ownerRole === 'MANAGER'"
+                (change)="onToggleTask(task.id, $event.checked)"
+                class="task-checkbox"
+              >
+              </mat-checkbox>
+
+            <div class="task-content">
+              <div class="task-header">
+                <span class="task-order">{{ task.taskOrder }}.</span>
+                <h3 class="task-title" [class.completed]="task.isCompleted">
+                  {{ task.title }}
+                </h3>
+              </div>
+              <p class="task-description">{{ task.description }}</p>
+
+              <div class="task-footer">
+                <mat-chip class="owner-chip" [class.manager]="task.ownerRole === 'MANAGER'">
+                  <mat-icon>
+                    {{ task.ownerRole === 'MANAGER' ? 'person' : 'self_improvement' }}
+                  </mat-icon>
+                  {{ task.ownerRole === 'MANAGER' ? 'Menedżer' : 'Ty' }}
+                </mat-chip>
+
+                @if (task.isCompleted) {
+                  <mat-chip class="status-chip completed">
+                    <mat-icon>done</mat-icon>
+                    Ukończone
+                  </mat-chip>
+                } @else {
+                  <mat-chip class="status-chip pending">
+                    <mat-icon>schedule</mat-icon>
+                    Do zrobienia
+                  </mat-chip>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (task.ownerRole === 'MANAGER' && !task.isCompleted) {
+            <div class="info-banner">
+              <mat-icon>info</mat-icon>
+              <span>To zadanie może oznaczyć jako ukończone tylko Twój menedżer</span>
+            </div>
+          }
+        </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
+

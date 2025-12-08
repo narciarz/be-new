@@ -22,7 +22,11 @@ import org.mapstruct.ReportingPolicy;
  *   <li>Password hashing is handled by the service layer</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring", 
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface UserMapper {
     
     /**
@@ -71,7 +75,7 @@ public interface UserMapper {
      * @param user the existing user entity to update
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", source = "password")
+    @Mapping(target = "passwordHash", ignore = true) // Password is handled separately in UserService.updateUser()
     @Mapping(target = "manager", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

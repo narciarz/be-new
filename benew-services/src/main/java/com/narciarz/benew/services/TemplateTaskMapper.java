@@ -20,7 +20,11 @@ import org.mapstruct.*;
  *   <li>ID and timestamps are managed by JPA and excluded from request mappings</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring", 
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface TemplateTaskMapper {
     
     /**
@@ -60,7 +64,8 @@ public interface TemplateTaskMapper {
      * Updates an existing TemplateTask entity with data from UpdateTemplateTaskRequestDto.
      * 
      * <p>Only non-null fields in the DTO are applied to the entity, allowing
-     * partial updates. This is controlled by {@code nullValuePropertyMappingStrategy = IGNORE}.</p>
+     * partial updates. This is controlled by {@code nullValuePropertyMappingStrategy = IGNORE}
+     * at the mapper level.</p>
      * 
      * <p>ID, template reference, and timestamps are excluded as they should never be
      * updated manually:</p>
@@ -78,7 +83,6 @@ public interface TemplateTaskMapper {
     @Mapping(target = "template", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateTemplateTaskRequestDto dto, @MappingTarget TemplateTask templateTask);
 }
 

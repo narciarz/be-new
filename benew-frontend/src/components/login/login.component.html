@@ -1,0 +1,74 @@
+<div class="login-container">
+  <div class="logo-section">
+    <div class="logo-container">
+      <mat-icon class="logo-icon">grade</mat-icon>
+      <div class="logo-text">Be New</div>
+    </div>
+  </div>
+
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Logowanie</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="jan.kowalski@example.com"
+            autocomplete="email"
+          />
+          @if (loginForm.controls.email.hasError('required') && loginForm.controls.email.touched) {
+            <mat-error>Email jest wymagany</mat-error>
+          }
+          @if (loginForm.controls.email.hasError('email') && loginForm.controls.email.touched) {
+            <mat-error>Podaj poprawny adres email</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Hasło</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Wprowadź hasło"
+            autocomplete="current-password"
+          />
+          @if (loginForm.controls.password.hasError('required') && loginForm.controls.password.touched) {
+            <mat-error>Hasło jest wymagane</mat-error>
+          }
+          @if (loginForm.controls.password.hasError('minlength') && loginForm.controls.password.touched) {
+            <mat-error>Hasło musi mieć minimum 3 znaki</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage()) {
+          <div class="error-message">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="full-width"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            Logowanie...
+          } @else {
+            Zaloguj się
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+
