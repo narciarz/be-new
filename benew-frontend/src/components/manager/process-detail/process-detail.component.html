@@ -1,0 +1,129 @@
+<div class="page-container">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie szczegółów procesu...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-raised-button color="primary" (click)="onBack()">
+        Powrót do listy procesów
+      </button>
+    </mat-card>
+  } @else if (process()) {
+    <div class="page-header">
+      <button mat-icon-button (click)="onBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>
+        <mat-icon>assignment_ind</mat-icon>
+        Szczegóły procesu wdrożeniowego
+      </h1>
+    </div>
+
+    <!-- Process Overview Card -->
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>{{ userName() }}</mat-card-title>
+        <mat-card-subtitle>Informacje o procesie</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="overview-grid">
+          <div class="overview-item">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="label">Menedżer</span>
+              <span class="value">{{ managerName() }}</span>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <mat-icon>calendar_today</mat-icon>
+            <div>
+              <span class="label">Data rozpoczęcia</span>
+              <span class="value">{{ getCreatedDate() }}</span>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="label">Ostatnia aktualizacja</span>
+              <span class="value">{{ getUpdatedDate() }}</span>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <mat-chip [color]="getStatusColor()">
+              <mat-icon>{{ process()?.status === 'ACTIVE' ? 'play_circle' : 'archive' }}</mat-icon>
+              {{ getStatusLabel() }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Postęp wdrożenia</span>
+            <span class="progress-value">{{ getProgress() }}%</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="getProgress()"></mat-progress-bar>
+          <div class="progress-stats">
+            <span>{{ process()?.completedTasksCount }} z {{ process()?.totalTasksCount }} zadań ukończonych</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tasks List Card -->
+    <mat-card class="tasks-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>checklist</mat-icon>
+          Lista zadań
+        </mat-card-title>
+        <mat-card-subtitle>Podgląd wszystkich zadań wdrożeniowych (tylko do odczytu)</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (tasks().length === 0) {
+          <div class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <p>Brak zadań w tym procesie</p>
+          </div>
+        } @else {
+          <mat-list class="tasks-list">
+            @for (task of tasks(); track task.id) {
+              <mat-list-item class="task-item" [class.completed]="task.isCompleted">
+                <mat-icon 
+                  matListItemIcon 
+                  [class]="getTaskIconColor(task)">
+                  {{ getTaskIcon(task) }}
+                </mat-icon>
+                
+                <div matListItemTitle class="task-title">
+                  {{ task.title }}
+                </div>
+                
+                <div matListItemLine class="task-meta">
+                  <span class="task-description">{{ task.description }}</span>
+                  <mat-chip class="role-chip" [class]="getRoleColor(task.ownerRole)">
+                    {{ getRoleLabel(task.ownerRole) }}
+                  </mat-chip>
+                </div>
+              </mat-list-item>
+              
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            }
+          </mat-list>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

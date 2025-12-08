@@ -1,15 +1,19 @@
 import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../../services/user.service';
 import { UserDto, CreateUserRequestDto, UpdateUserRequestDto } from '../../../models/user.dto';
 import { UserRole } from '../../../models/user-role';
+import { startWith, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 interface UserDialogData {
   user?: UserDto;
@@ -22,12 +26,14 @@ interface UserDialogData {
 @Component({
   selector: 'app-user-dialog',
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatProgressSpinnerModule,
     MatIconModule,
   ],
@@ -46,6 +52,8 @@ export class UserDialogComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly isEditMode: boolean;
   readonly allUsers = signal<UserDto[]>([]);
+  readonly availablePositions = signal<string[]>([]);
+  filteredPositions$!: Observable<string[]>;
 
   readonly roles = [
     { value: UserRole.ADMIN, label: 'Administrator' },
@@ -75,6 +83,8 @@ export class UserDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadManagers();
+    this.loadPositions();
+    this.setupPositionAutocomplete();
   }
 
   private loadManagers(): void {
@@ -87,6 +97,38 @@ export class UserDialogComponent implements OnInit {
         console.error('Error loading managers:', error);
       },
     });
+  }
+
+  private loadPositions(): void {
+    // Load all users to extract unique positions
+    this.userService.getUsers(0, 1000).subscribe({
+      next: (response) => {
+        // Extract unique positions, normalize to lowercase, remove duplicates
+        const positions = response.content
+          .map((user) => user.positionName.toLowerCase().trim())
+          .filter((pos, index, self) => pos && self.indexOf(pos) === index)
+          .sort();
+        
+        this.availablePositions.set(positions);
+      },
+      error: (error) => {
+        console.error('Error loading positions:', error);
+      },
+    });
+  }
+
+  private setupPositionAutocomplete(): void {
+    this.filteredPositions$ = this.userForm.get('positionName')!.valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filterPositions(value || ''))
+    );
+  }
+
+  private _filterPositions(value: string): string[] {
+    const filterValue = value.toLowerCase().trim();
+    return this.availablePositions().filter((position) =>
+      position.includes(filterValue)
+    );
   }
 
   onSave(): void {
@@ -106,7 +148,7 @@ export class UserDialogComponent implements OnInit {
         email: formValue.email,
         firstName: formValue.firstName,
         lastName: formValue.lastName,
-        positionName: formValue.positionName,
+        positionName: formValue.positionName.toLowerCase().trim(),
         role: formValue.role,
         managerId: formValue.managerId || undefined,
       };
@@ -133,7 +175,7 @@ export class UserDialogComponent implements OnInit {
         password: formValue.password,
         firstName: formValue.firstName,
         lastName: formValue.lastName,
-        positionName: formValue.positionName,
+        positionName: formValue.positionName.toLowerCase().trim(),
         role: formValue.role,
         managerId: formValue.managerId || undefined,
       };

@@ -1,4 +1,5 @@
 import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,6 +45,7 @@ interface ProcessView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProcessesComponent implements OnInit {
+  private readonly router = inject(Router);
   private readonly onboardingService = inject(OnboardingService);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
@@ -191,8 +193,7 @@ export class ProcessesComponent implements OnInit {
   }
 
   onViewProcess(processId: string): void {
-    console.log('View process:', processId);
-    // TODO: Navigate to process details
+    this.router.navigate(['/dashboard/manager/processes', processId]);
   }
 
   onArchiveProcess(processId: string): void {

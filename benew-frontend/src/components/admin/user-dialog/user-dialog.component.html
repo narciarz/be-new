@@ -47,7 +47,16 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Stanowisko</mat-label>
-      <input matInput formControlName="positionName" placeholder="Software Developer" />
+      <input 
+        matInput 
+        formControlName="positionName" 
+        placeholder="Zacznij pisać aby zobaczyć podpowiedzi..."
+        [matAutocomplete]="positionAuto" />
+      <mat-autocomplete #positionAuto="matAutocomplete">
+        @for (position of filteredPositions$ | async; track position) {
+          <mat-option [value]="position">{{ position }}</mat-option>
+        }
+      </mat-autocomplete>
       @if (getErrorMessage('positionName')) {
         <mat-error>{{ getErrorMessage('positionName') }}</mat-error>
       }

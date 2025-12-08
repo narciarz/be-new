@@ -72,6 +72,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'manager/processes/:id',
+        loadComponent: () =>
+          import('../components/manager/process-detail/process-detail.component').then(
+            (m) => m.ProcessDetailComponent
+          ),
+      },
+      {
         path: 'manager/tasks',
         loadComponent: () =>
           import('../components/manager/tasks/tasks.component').then(
