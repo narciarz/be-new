@@ -1,0 +1,103 @@
+name: Build and Deploy to Mikr.us
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Pozwala na ręczne uruchomienie
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build with Maven (includes Angular frontend)
+      run: |
+        echo "Building project..."
+#        mvn clean package -DskipTests
+        echo "Build completed!"
+#
+#    - name: Get artifact version
+#      id: get_version
+#      run: |
+#        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+#        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+#        echo "Artifact version: $VERSION"
+    
+    - name: Prepare JAR for upload
+      run: |
+        mkdir -p deploy
+#       TODO REMOVE
+        echo 'ddsd' > deploy/benew-app.jar
+#        cp benew-services/target/benew-services-*.jar deploy/benew-app.jar
+#        ls -lh deploy/
+        echo "JAR file prepared for deployment"
+    
+    - name: Deploy to Mikr.us via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.MIKRUS_HOST }}
+        username: ${{ secrets.MIKRUS_USER }}
+        key: ${{ secrets.MIKRUS_SSH_KEY }}
+        port: ${{ secrets.MIKRUS_PORT || 22 }}
+        source: "deploy/benew-app.jar"
+        target: "~/app2/"
+        strip_components: 1
+    
+#    - name: Restart application on server
+#      uses: appleboy/ssh-action@v1.2.0
+#      with:
+#        host: ${{ secrets.MIKRUS_HOST }}
+#        username: ${{ secrets.MIKRUS_USER }}
+#        key: ${{ secrets.MIKRUS_SSH_KEY }}
+#        port: ${{ secrets.MIKRUS_PORT || 22 }}
+#        script: |
+#          echo "Restarting application..."
+#          cd ~/apps
+#
+#          # Stop current application
+#          if [ -f benew.pid ]; then
+#            kill $(cat benew.pid) 2>/dev/null || true
+#            rm benew.pid
+#            sleep 2
+#          fi
+#
+#          # Backup old version
+#          if [ -f benew-app-current.jar ]; then
+#            mv benew-app-current.jar benew-app-backup.jar
+#          fi
+#
+#          # Deploy new version
+#          mv benew-app.jar benew-app-current.jar
+#
+#          # Start application (adjust paths and ports as needed)
+#          nohup java -jar benew-app-current.jar \
+#            --server.port=8080 \
+#            --spring.profiles.active=prod \
+#            > app.log 2>&1 & echo $! > benew.pid
+#
+#          sleep 3
+#
+#          # Check if application started
+#          if ps -p $(cat benew.pid) > /dev/null; then
+#            echo "Application started successfully! PID: $(cat benew.pid)"
+#          else
+#            echo "Failed to start application"
+#            exit 1
+#          fi
+#
+    - name: Deployment Status
+      if: success()
+      run: |
+        echo "✅ Deployment completed successfully!"
+        echo "Server: ${{ secrets.MIKRUS_HOST }}"
+#        echo "Version: ${{ steps.get_version.outputs.VERSION }}"
