@@ -27,8 +27,17 @@
         <div class="search-bar">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Szukaj użytkownika</mat-label>
-            <input matInput placeholder="Email, imię lub nazwisko..." />
+            <input 
+              matInput 
+              placeholder="Email, imię lub nazwisko..." 
+              [value]="searchQuery()"
+              (input)="onSearchChange($event)" />
             <mat-icon matPrefix>search</mat-icon>
+            @if (searchQuery()) {
+              <button matSuffix mat-icon-button (click)="searchQuery.set('')" title="Wyczyść">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
           </mat-form-field>
         </div>
 

@@ -36,12 +36,31 @@ export class UserManagementComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   readonly displayedColumns = ['email', 'firstName', 'lastName', 'role', 'actions'];
-  readonly users = signal<UserDto[]>([]);
+  readonly allUsers = signal<UserDto[]>([]);
+  readonly searchQuery = signal('');
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
 
+  // Filtered users based on search query
+  readonly users = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) {
+      return this.allUsers();
+    }
+
+    return this.allUsers().filter((user) => {
+      const searchText = `${user.email} ${user.firstName} ${user.lastName}`.toLowerCase();
+      return searchText.includes(query);
+    });
+  });
+
   ngOnInit(): void {
     this.loadUsers();
+  }
+
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
   }
 
   private loadUsers(): void {
@@ -50,7 +69,7 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.getUsers(0, 100).subscribe({
       next: (response) => {
-        this.users.set(response.content);
+        this.allUsers.set(response.content);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -70,7 +89,7 @@ export class UserManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Add new user to the list
-        this.users.update((users) => [...users, result]);
+        this.allUsers.update((users) => [...users, result]);
       }
     });
   }
@@ -87,7 +106,7 @@ export class UserManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Update user in the list
-        this.users.update((users) => users.map((u) => (u.id === userId ? result : u)));
+        this.allUsers.update((users) => users.map((u) => (u.id === userId ? result : u)));
       }
     });
   }
@@ -116,8 +135,7 @@ export class UserManagementComponent implements OnInit {
       this.userService.deleteUser(userId).subscribe({
         next: () => {
           // Remove from local state
-          const updated = this.users().filter((u) => u.id !== userId);
-          this.users.set(updated);
+          this.allUsers.update((users) => users.filter((u) => u.id !== userId));
           console.log('User deleted successfully');
         },
         error: (error) => {
