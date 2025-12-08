@@ -57,3 +57,25 @@ export interface UpdateOnboardingTaskRequestDto {
   isCompleted: boolean;
 }
 
+/**
+ * Manager task with employee information
+ */
+export interface ManagerTaskDto {
+  id: string;
+  processId: string;
+  title: string;
+  description: string;
+  taskOrder: number;
+  ownerRole: string;
+  isCompleted: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  // User information
+  userId: string;
+  userFirstName: string;
+  userLastName: string;
+  userPosition: string;
+  // Process information
+  processStatus: string;
+}
+

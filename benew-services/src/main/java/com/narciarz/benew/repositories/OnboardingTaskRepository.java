@@ -1,7 +1,10 @@
 package com.narciarz.benew.repositories;
 
 import com.narciarz.benew.models.OnboardingTask;
+import com.narciarz.benew.models.TaskOwnerRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,5 +64,24 @@ public interface OnboardingTaskRepository extends JpaRepository<OnboardingTask, 
      * @param onboardingProcessId the onboarding process ID
      */
     void deleteByOnboardingProcessId(UUID onboardingProcessId);
+    
+    /**
+     * Find all tasks with specific owner role for active onboarding processes managed by a specific manager.
+     * Used by managers to view and complete tasks assigned to them.
+     * 
+     * @param managerId the manager's user ID
+     * @param status the process status (typically ACTIVE)
+     * @param ownerRole the task owner role (typically MANAGER)
+     * @return list of tasks ordered by process creation date and task order
+     */
+    @Query("SELECT t FROM OnboardingTask t " +
+           "JOIN t.onboardingProcess p " +
+           "WHERE p.manager.id = :managerId " +
+           "AND p.status = :status " +
+           "AND t.ownerRole = :ownerRole " +
+           "ORDER BY p.createdAt DESC, t.taskOrder ASC")
+    List<OnboardingTask> findManagerTasks(@Param("managerId") UUID managerId,
+                                          @Param("status") com.narciarz.benew.models.OnboardingStatus status,
+                                          @Param("ownerRole") TaskOwnerRole ownerRole);
 }
 

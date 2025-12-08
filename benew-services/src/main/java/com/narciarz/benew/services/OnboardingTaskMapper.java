@@ -1,6 +1,7 @@
 package com.narciarz.benew.services;
 
 import com.narciarz.benew.models.OnboardingTask;
+import com.narciarz.benew.models.dto.ManagerTaskResponseDto;
 import com.narciarz.benew.models.dto.OnboardingTaskResponseDto;
 import com.narciarz.benew.models.dto.UpdateOnboardingTaskRequestDto;
 import org.mapstruct.*;
@@ -56,5 +57,29 @@ public interface OnboardingTaskMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     void updateEntityFromDto(UpdateOnboardingTaskRequestDto dto, @MappingTarget OnboardingTask task);
+    
+    /**
+     * Maps OnboardingTask entity to ManagerTaskResponseDto with user information.
+     * 
+     * <p>Extracts task information and employee details from nested relationships:</p>
+     * <ul>
+     *   <li>onboardingProcess.id → processId</li>
+     *   <li>onboardingProcess.user.id → userId</li>
+     *   <li>onboardingProcess.user.firstName → userFirstName</li>
+     *   <li>onboardingProcess.user.lastName → userLastName</li>
+     *   <li>onboardingProcess.user.positionName → userPosition</li>
+     *   <li>onboardingProcess.status → processStatus</li>
+     * </ul>
+     * 
+     * @param task the onboarding task entity
+     * @return manager task response DTO with employee information
+     */
+    @Mapping(target = "processId", source = "onboardingProcess.id")
+    @Mapping(target = "userId", source = "onboardingProcess.user.id")
+    @Mapping(target = "userFirstName", source = "onboardingProcess.user.firstName")
+    @Mapping(target = "userLastName", source = "onboardingProcess.user.lastName")
+    @Mapping(target = "userPosition", source = "onboardingProcess.user.positionName")
+    @Mapping(target = "processStatus", source = "onboardingProcess.status")
+    ManagerTaskResponseDto toManagerTaskResponseDto(OnboardingTask task);
 }
 

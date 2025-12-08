@@ -71,6 +71,13 @@ export const routes: Routes = [
             (m) => m.ProcessesComponent
           ),
       },
+      {
+        path: 'manager/tasks',
+        loadComponent: () =>
+          import('../components/manager/tasks/tasks.component').then(
+            (m) => m.TasksComponent
+          ),
+      },
       // User routes
       {
         path: 'user/checklist',

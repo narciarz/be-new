@@ -7,6 +7,7 @@ import {
   UpdateOnboardingProcessRequestDto,
   OnboardingTaskDto,
   UpdateOnboardingTaskRequestDto,
+  ManagerTaskDto,
 } from '../models/onboarding.dto';
 import { PagedResponse } from '../models/user.dto';
 
@@ -97,6 +98,15 @@ export class OnboardingService {
     task: UpdateOnboardingTaskRequestDto
   ): Observable<OnboardingTaskDto> {
     return this.http.put<OnboardingTaskDto>(`${this.API_URL}/${processId}/tasks/${taskId}`, task);
+  }
+
+  // ==================== Manager Tasks ====================
+
+  /**
+   * Get all tasks assigned to MANAGER for the current manager's team
+   */
+  getManagerTasks(): Observable<ManagerTaskDto[]> {
+    return this.http.get<ManagerTaskDto[]>('/api/manager/tasks');
   }
 }
 

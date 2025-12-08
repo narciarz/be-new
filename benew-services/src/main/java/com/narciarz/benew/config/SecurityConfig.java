@@ -232,6 +232,9 @@ public class SecurityConfig {
                         // Template management endpoints (admin only)
                         .requestMatchers("/api/templates/**").hasRole("ADMIN")
                         
+                        // Manager-specific endpoints (manager and admin only)
+                        .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
+                        
                         // Onboarding process endpoints
                         .requestMatchers("/api/onboarding/**").hasAnyRole("ADMIN", "MANAGER", "USER")
                         
