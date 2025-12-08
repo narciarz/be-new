@@ -579,7 +579,8 @@ class TemplateServiceTest {
         // Act & Assert
         assertThatThrownBy(() -> templateService.importTemplateFromCsv(file))
                 .isInstanceOf(CsvImportException.class)
-                .hasMessageContaining("5 columns");
+                .hasMessageContaining("CSV header must contain 5 columns")
+                .hasMessageContaining("position_name, task_order, task_title, task_description, owner_role");
         
         verify(templateTaskRepository, never()).saveAll(anyList());
     }

@@ -59,14 +59,12 @@ class TemplateImportIntegrationTest {
     @SuppressWarnings("resource") // MockMultipartFile triggers false positive in static analysis
     @DisplayName("importTemplateFromCsv persists template and tasks in PostgreSQL")
     void importTemplateFromCsv_PersistsData() {
-        // Arrange
+        // Arrange - NEW FORMAT: position_name,task_order,task_title,task_description,owner_role
         String csvContent = """
-                position_name
-                Software Engineer
-                title,description,task_order,owner_role
-                Setup workstation,Install required software and tools,1,USER
-                Meet the team,Introduction meeting with team members,2,MANAGER
-                Review codebase,Familiarize with main repositories,3,USER
+                position_name,task_order,task_title,task_description,owner_role
+                Software Engineer,1,Setup workstation,Install required software and tools,USER
+                Software Engineer,2,Meet the team,Introduction meeting with team members,MANAGER
+                Software Engineer,3,Review codebase,Familiarize with main repositories,USER
                 """;
 
         MockMultipartFile file = new MockMultipartFile(
