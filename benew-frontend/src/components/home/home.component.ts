@@ -19,3 +19,4 @@ export class HomeComponent {
   readonly currentUser = this.authService.currentUser;
   readonly UserRole = UserRole;
 }
+

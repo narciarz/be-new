@@ -117,3 +117,4 @@ export class UserManagementComponent implements OnInit {
     alert('Funkcja resetowania hasła będzie dostępna wkrótce');
   }
 }
+

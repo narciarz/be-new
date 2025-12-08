@@ -70,3 +70,4 @@ export class UserService {
     return this.http.delete<void>(`${this.API_URL}/${userId}`);
   }
 }
+

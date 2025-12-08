@@ -127,3 +127,4 @@ export class TeamComponent implements OnInit {
     // TODO: Navigate to member details
   }
 }
+

@@ -56,3 +56,4 @@ export interface OnboardingTaskDto {
 export interface UpdateOnboardingTaskRequestDto {
   isCompleted: boolean;
 }
+

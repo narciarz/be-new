@@ -116,3 +116,4 @@ export class TemplateDialogComponent {
     return 'Nieprawidłowa wartość';
   }
 }
+

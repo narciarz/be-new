@@ -99,3 +99,4 @@ export class OnboardingService {
     return this.http.put<OnboardingTaskDto>(`${this.API_URL}/${processId}/tasks/${taskId}`, task);
   }
 }
+

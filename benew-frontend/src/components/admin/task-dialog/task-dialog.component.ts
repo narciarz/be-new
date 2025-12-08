@@ -139,3 +139,4 @@ export class TaskDialogComponent {
     return 'Nieprawidłowa wartość';
   }
 }
+

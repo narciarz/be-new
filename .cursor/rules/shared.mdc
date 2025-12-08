@@ -10,7 +10,7 @@ Be New to aplikacja webowa upraszczająca i standaryzująca proces wdrożenia no
 ## Tech Stack
 
 - Spring Boot 3
-- Java 25
+- Java 21
 - PostgreSQL 16
 - TypeScript 5
 - Angular 20

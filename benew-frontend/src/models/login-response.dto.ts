@@ -36,3 +36,4 @@ export interface LoginResponseDto {
    */
   lastName: string;
 }
+

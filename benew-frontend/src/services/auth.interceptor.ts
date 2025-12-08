@@ -30,3 +30,4 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // If no token, proceed with original request
   return next(req);
 };
+

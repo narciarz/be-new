@@ -14,3 +14,4 @@ import { MatExpansionModule } from '@angular/material/expansion';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InfoComponent {}
+
