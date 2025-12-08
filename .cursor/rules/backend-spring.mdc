@@ -45,3 +45,5 @@ alwaysApply: false
 - Use `lombok-mapstruct-binding` dependency to ensure compatibility between Lombok and MapStruct
 - Entities should extend `BaseEntity` to inherit common audit fields (`id`, `createdAt`, `updatedAt`)
 - MapStruct mappers should ignore inherited fields from `BaseEntity` in mappings with `@Mapping(target = "id", ignore = true)`, etc.
+- Always use `@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)` for class when update methods exists to prevent null values from overwriting existing data
+- Create `MapperConfig.java` with `@ComponentScan(basePackages = "com.narciarz.benew.services")` to ensure generated mappers are detected by Spring
