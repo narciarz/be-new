@@ -2,17 +2,24 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .toolbar {
   position: sticky;
   top: 0;
   z-index: 1000;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 199, 44, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .app-title {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffc72c !important;
+  text-shadow: 0 2px 10px rgba(255, 199, 44, 0.3);
+  letter-spacing: 1px;
 }
 
 .spacer {
@@ -22,16 +29,29 @@
 .user-info {
   margin-right: 1rem;
   font-size: 0.875rem;
+  color: #e0e0e0;
+}
+
+::ng-deep .toolbar button[mat-icon-button] {
+  color: #ffc72c !important;
+}
+
+::ng-deep .toolbar button[mat-icon-button]:hover {
+  background-color: rgba(255, 199, 44, 0.1) !important;
 }
 
 .sidenav-container {
   flex: 1;
   overflow: hidden;
+  background: transparent !important;
 }
 
 .sidenav {
   width: 280px;
   padding: 1rem 0;
+  background: rgba(45, 45, 45, 0.6) !important;
+  border-right: 1px solid rgba(255, 199, 44, 0.2) !important;
+  backdrop-filter: blur(10px);
 }
 
 .sidenav mat-nav-list {
@@ -41,21 +61,32 @@
 .sidenav h3[mat-subheader] {
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #ffc72c !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
 }
 
 .sidenav a[mat-list-item] {
   cursor: pointer;
   border-radius: 8px;
   margin: 0.25rem 0.75rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  color: #e0e0e0 !important;
 }
 
 .sidenav a[mat-list-item]:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(255, 199, 44, 0.1) !important;
+  color: #ffc72c !important;
+  transform: translateX(4px);
+}
+
+::ng-deep .sidenav a[mat-list-item] .mat-icon {
+  color: #ffc72c !important;
 }
 
 .main-content {
-  background-color: #f5f5f5;
+  background: transparent !important;
   overflow-y: auto;
 }
 
@@ -66,21 +97,49 @@
 }
 
 .content-wrapper h1 {
-  color: #333;
+  color: #ffc72c;
   margin-bottom: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(255, 199, 44, 0.3);
 }
 
 .welcome-card {
   margin-top: 1rem;
+  background: rgba(45, 45, 45, 0.8) !important;
+  border: 2px solid rgba(255, 199, 44, 0.2) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+::ng-deep .welcome-card .mat-mdc-card-header {
+  border-bottom: 1px solid rgba(255, 199, 44, 0.1);
+  padding-bottom: 1rem;
+}
+
+::ng-deep .welcome-card .mat-mdc-card-title {
+  color: #ffc72c !important;
+  font-weight: 600;
+}
+
+::ng-deep .welcome-card .mat-mdc-card-content {
+  color: #e0e0e0 !important;
 }
 
 .welcome-card p {
   margin: 0.5rem 0;
   line-height: 1.6;
+  color: #e0e0e0;
 }
 
 .welcome-card p:first-of-type {
   font-size: 1.1rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.welcome-card strong {
+  color: #ffc72c;
 }
 
 @media (max-width: 768px) {
