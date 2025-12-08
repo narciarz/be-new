@@ -6,8 +6,7 @@ name: Java Build with Maven
 on:
   push:
     branches: [ "main", "master" ] # Uruchom przy pushu na main lub master
-  pull_request:
-    branches: [ "main", "master" ] # Uruchom przy Pull Request
+  workflow_dispatch: # Pozwala na ręczne uruchomienie
   release:
     types: [created]
 
@@ -30,9 +29,9 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package -Dmaven.deploy.skip=true --file pom.xml
 
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+#    - name: Publish to GitHub Packages Apache Maven
+#      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+#      env:
+#        GITHUB_TOKEN: ${{ github.token }}
