@@ -17,7 +17,7 @@
       <p>{{ errorMessage() }}</p>
     </mat-card>
   } @else {
-    <mat-tab-group class="processes-tabs">
+    <mat-tab-group class="processes-tabs" (selectedIndexChange)="onTabChange($event)">
       <mat-tab label="Aktywne">
         @if (activeProcesses().length === 0) {
           <div class="empty-state">
@@ -84,11 +84,11 @@
         }
       </mat-tab>
 
-      <mat-tab label="Ukończone">
+      <mat-tab label="Zarchiwizowane">
         @if (completedProcesses().length === 0) {
           <div class="empty-state">
-            <mat-icon>check_circle</mat-icon>
-            <p>Brak ukończonych procesów</p>
+            <mat-icon>archive</mat-icon>
+            <p>Brak zarchiwizowanych procesów</p>
           </div>
         } @else {
           <div class="processes-grid">
@@ -113,9 +113,9 @@
                 </div>
 
                 <div class="info-item">
-                  <mat-icon>event_available</mat-icon>
+                  <mat-icon>archive</mat-icon>
                   <div>
-                    <span class="info-label">Data ukończenia</span>
+                    <span class="info-label">Data archiwizacji</span>
                     <span class="info-value">{{ process.completedDate }}</span>
                   </div>
                 </div>
@@ -131,8 +131,8 @@
 
               <div class="tasks-summary">
                 <mat-chip class="completed-chip">
-                  <mat-icon>done_all</mat-icon>
-                  {{ process.totalTasks }} zadań ukończonych
+                  <mat-icon>archive</mat-icon>
+                  {{ process.completedTasks }} / {{ process.totalTasks }} zadań
                 </mat-chip>
               </div>
             </mat-card-content>

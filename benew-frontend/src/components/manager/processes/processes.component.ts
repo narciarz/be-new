@@ -183,6 +183,10 @@ export class ProcessesComponent implements OnInit {
     const end = new Date(endDate);
     const diffMs = end.getTime() - start.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'mniej niż 1 dzień';
+    if (diffDays === 1) return '1 dzień';
+    if (diffDays < 5) return `${diffDays} dni`;
     return `${diffDays} dni`;
   }
 
@@ -204,6 +208,34 @@ export class ProcessesComponent implements OnInit {
         error: (error) => {
           console.error('Error archiving process:', error);
           this.errorMessage.set('Błąd podczas archiwizacji procesu');
+        },
+      });
+  }
+
+  onTabChange(index: number): void {
+    // Reload data when switching to "Zarchiwizowane" tab (index 1)
+    if (index === 1) {
+      this.loadArchivedProcesses();
+    }
+  }
+
+  private loadArchivedProcesses(): void {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) {
+      return;
+    }
+
+    this.onboardingService
+      .getOnboardingProcesses(0, 100, {
+        managerId: currentUser.id,
+        status: 'ARCHIVED',
+      })
+      .subscribe({
+        next: (result) => {
+          this.processCompletedProcesses(result.content);
+        },
+        error: (error) => {
+          console.error('Error loading archived processes:', error);
         },
       });
   }
