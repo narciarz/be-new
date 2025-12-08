@@ -5,10 +5,13 @@ import com.narciarz.benew.exceptions.InvalidManagerException;
 import com.narciarz.benew.exceptions.UserDeletionException;
 import com.narciarz.benew.exceptions.UserNotFoundException;
 import com.narciarz.benew.models.AppUser;
+import com.narciarz.benew.models.Template;
 import com.narciarz.benew.models.UserRole;
+import com.narciarz.benew.models.dto.CreateOnboardingProcessRequestDto;
 import com.narciarz.benew.models.dto.CreateUserRequestDto;
 import com.narciarz.benew.models.dto.UpdateUserRequestDto;
 import com.narciarz.benew.models.dto.UserResponseDto;
+import com.narciarz.benew.repositories.TemplateRepository;
 import com.narciarz.benew.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TemplateRepository templateRepository;
+    private final OnboardingService onboardingService;
     
     /**
      * Constructor-based dependency injection.
@@ -52,13 +57,19 @@ public class UserService {
      * @param userRepository repository for user data access
      * @param userMapper mapper for entity-DTO conversion
      * @param passwordEncoder encoder for password hashing
+     * @param templateRepository repository for template data access
+     * @param onboardingService service for creating onboarding processes
      */
     public UserService(UserRepository userRepository, 
                       UserMapper userMapper,
-                      PasswordEncoder passwordEncoder) {
+                      PasswordEncoder passwordEncoder,
+                      TemplateRepository templateRepository,
+                      OnboardingService onboardingService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.templateRepository = templateRepository;
+        this.onboardingService = onboardingService;
     }
     
     /**
@@ -194,7 +205,56 @@ public class UserService {
         AppUser savedUser = userRepository.save(user);
         log.info("Successfully created user with id: {}", savedUser.getId());
         
+        // Auto-create onboarding process for USER role (US-006)
+        if (savedUser.getRole() == UserRole.USER && savedUser.getPositionName() != null) {
+            createOnboardingProcessForUser(savedUser);
+        }
+        
         return userMapper.toResponseDto(savedUser);
+    }
+    
+    /**
+     * Automatically creates an onboarding process for a new USER.
+     * 
+     * <p>Implements US-006: "System automatically generates checklist for employee."
+     * Finds template matching user's position and creates onboarding process with tasks.</p>
+     * 
+     * @param user the newly created user
+     */
+    private void createOnboardingProcessForUser(AppUser user) {
+        String normalizedPosition = normalizePositionName(user.getPositionName());
+        
+        // Find template for user's position
+        Template template = templateRepository.findByPositionNameIgnoreCase(normalizedPosition).orElse(null);
+        
+        if (template == null) {
+            log.warn("No template found for position: {} - skipping onboarding process creation for user {}", 
+                    normalizedPosition, user.getId());
+            return;
+        }
+        
+        // Ensure user has a manager
+        if (user.getManager() == null) {
+            log.warn("User {} has no manager assigned - skipping onboarding process creation", user.getId());
+            return;
+        }
+        
+        // Create onboarding process
+        try {
+            CreateOnboardingProcessRequestDto processDto = new CreateOnboardingProcessRequestDto(
+                    user.getId(),
+                    user.getManager().getId(),
+                    template.getId()
+            );
+            
+            onboardingService.createProcess(processDto);
+            log.info("Auto-created onboarding process for user {} using template {}", 
+                    user.getId(), template.getId());
+        } catch (Exception e) {
+            log.error("Failed to auto-create onboarding process for user {}: {}", 
+                    user.getId(), e.getMessage(), e);
+            // Don't fail user creation if onboarding process creation fails
+        }
     }
     
     /**
