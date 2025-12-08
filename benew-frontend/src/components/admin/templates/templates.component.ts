@@ -65,7 +65,7 @@ export class TemplatesComponent implements OnInit {
 
         // Load tasks for each template
         const taskRequests = templates.map((t) =>
-          this.templateService.getTemplateTasks(t.templateId)
+          this.templateService.getTemplateTasks(t.id)
         );
 
         forkJoin(taskRequests).subscribe({
@@ -117,7 +117,7 @@ export class TemplatesComponent implements OnInit {
   }
 
   onEditTemplate(templateId: string): void {
-    const template = this.templates().find((t) => t.templateId === templateId);
+    const template = this.templates().find((t) => t.id === templateId);
     if (!template) return;
 
     const dialogRef = this.dialog.open(TemplateDialogComponent, {
@@ -130,7 +130,7 @@ export class TemplatesComponent implements OnInit {
         // Update template in the list (preserve tasks)
         this.templates.update((templates) =>
           templates.map((t) =>
-            t.templateId === templateId ? { ...result, tasks: t.tasks, tasksCount: t.tasksCount } : t
+            t.id === templateId ? { ...result, tasks: t.tasks, tasksCount: t.tasksCount } : t
           )
         );
       }
@@ -145,7 +145,7 @@ export class TemplatesComponent implements OnInit {
 
     this.templateService.deleteTemplate(templateId).subscribe({
       next: () => {
-        const updated = this.templates().filter((t) => t.templateId !== templateId);
+        const updated = this.templates().filter((t) => t.id !== templateId);
         this.templates.set(updated);
         console.log('Template deleted successfully');
       },
@@ -157,7 +157,7 @@ export class TemplatesComponent implements OnInit {
   }
 
   onAddTask(templateId: string): void {
-    const template = this.templates().find((t) => t.templateId === templateId);
+    const template = this.templates().find((t) => t.id === templateId);
     if (!template) return;
 
     const dialogRef = this.dialog.open(TaskDialogComponent, {
@@ -174,7 +174,7 @@ export class TemplatesComponent implements OnInit {
         // Add new task to the template
         this.templates.update((templates) =>
           templates.map((t) => {
-            if (t.templateId === templateId) {
+            if (t.id === templateId) {
               return {
                 ...t,
                 tasks: [...t.tasks, result],
@@ -189,10 +189,10 @@ export class TemplatesComponent implements OnInit {
   }
 
   onEditTask(templateId: string, taskId: string): void {
-    const template = this.templates().find((t) => t.templateId === templateId);
+    const template = this.templates().find((t) => t.id === templateId);
     if (!template) return;
 
-    const task = template.tasks.find((t) => t.taskId === taskId);
+    const task = template.tasks.find((t) => t.id === taskId);
     if (!task) return;
 
     const dialogRef = this.dialog.open(TaskDialogComponent, {
@@ -210,10 +210,10 @@ export class TemplatesComponent implements OnInit {
         // Update task in the template
         this.templates.update((templates) =>
           templates.map((t) => {
-            if (t.templateId === templateId) {
+            if (t.id === templateId) {
               return {
                 ...t,
-                tasks: t.tasks.map((task) => (task.taskId === taskId ? result : task)),
+                tasks: t.tasks.map((task) => (task.id === taskId ? result : task)),
               };
             }
             return t;
@@ -233,8 +233,8 @@ export class TemplatesComponent implements OnInit {
       next: () => {
         // Update local state
         const updated = this.templates().map((template) => {
-          if (template.templateId === templateId) {
-            const updatedTasks = template.tasks.filter((t) => t.taskId !== taskId);
+          if (template.id === templateId) {
+            const updatedTasks = template.tasks.filter((t) => t.id !== taskId);
             return {
               ...template,
               tasks: updatedTasks,

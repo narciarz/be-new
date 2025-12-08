@@ -66,8 +66,8 @@ export class ChecklistComponent implements OnInit {
         next: (response) => {
           if (response.content.length > 0) {
             const process = response.content[0];
-            this.processId = process.processId;
-            this.loadTasks(process.processId);
+            this.processId = process.id;
+            this.loadTasks(process.id);
             this.calculateProgress(process.completedTasksCount, process.totalTasksCount);
           } else {
             this.errorMessage.set('Nie znaleziono aktywnego procesu onboardingu');
@@ -116,7 +116,7 @@ export class ChecklistComponent implements OnInit {
         next: (updatedTask) => {
           // Update local state
           const updatedTasks = this.tasks().map((task) =>
-            task.taskId === taskId ? updatedTask : task
+            task.id === taskId ? updatedTask : task
           );
           this.tasks.set(updatedTasks);
 

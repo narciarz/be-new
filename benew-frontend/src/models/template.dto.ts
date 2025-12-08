@@ -2,7 +2,7 @@
  * Template entity from backend
  */
 export interface TemplateDto {
-  templateId: string;
+  id: string; // Backend returns "id" not "templateId"
   positionName: string;
   description?: string;
   createdAt?: string;
@@ -29,7 +29,7 @@ export interface UpdateTemplateRequestDto {
  * Template Task entity from backend
  */
 export interface TemplateTaskDto {
-  taskId: string;
+  id: string; // Backend returns "id" not "taskId"
   templateId: string;
   title: string;
   description: string;

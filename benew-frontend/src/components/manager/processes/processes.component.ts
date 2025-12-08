@@ -109,7 +109,7 @@ export class ProcessesComponent implements OnInit {
           );
 
           return {
-            processId: process.processId,
+            processId: process.id,
             userName: `${user.firstName} ${user.lastName}`,
             position: user.positionName,
             startDate: process.createdAt?.split('T')[0] || 'N/A',
@@ -143,7 +143,7 @@ export class ProcessesComponent implements OnInit {
           const duration = this.calculateDuration(process.createdAt, process.updatedAt);
 
           return {
-            processId: process.processId,
+            processId: process.id,
             userName: `${user.firstName} ${user.lastName}`,
             position: user.positionName,
             startDate: process.createdAt?.split('T')[0] || 'N/A',

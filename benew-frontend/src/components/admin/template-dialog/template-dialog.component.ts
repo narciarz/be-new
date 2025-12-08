@@ -70,7 +70,7 @@ export class TemplateDialogComponent {
         description: formValue.description || undefined,
       };
 
-      this.templateService.updateTemplate(this.data.template.templateId, updateData).subscribe({
+      this.templateService.updateTemplate(this.data.template.id, updateData).subscribe({
         next: (template) => {
           this.dialogRef.close(template);
         },

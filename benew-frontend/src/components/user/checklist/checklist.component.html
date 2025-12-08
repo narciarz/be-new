@@ -38,14 +38,14 @@
     </mat-card>
 
     <div class="checklist-container">
-      @for (task of tasks(); track task.taskId) {
+      @for (task of tasks(); track task.id) {
         <mat-card class="task-card" [class.completed]="task.isCompleted">
           <mat-card-content>
             <div class="task-main">
               <mat-checkbox
                 [checked]="task.isCompleted"
                 [disabled]="task.ownerRole === 'MANAGER'"
-                (change)="onToggleTask(task.taskId, $event.checked)"
+                (change)="onToggleTask(task.id, $event.checked)"
                 class="task-checkbox"
               >
               </mat-checkbox>

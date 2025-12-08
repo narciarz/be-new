@@ -2,7 +2,7 @@
  * Onboarding Process entity from backend
  */
 export interface OnboardingProcessDto {
-  processId: string;
+  id: string; // Backend returns "id" not "processId"
   userId: string;
   managerId: string;
   sourceTemplateId: string;
@@ -39,7 +39,7 @@ export interface UpdateOnboardingProcessRequestDto {
  * Onboarding Task entity from backend
  */
 export interface OnboardingTaskDto {
-  taskId: string;
+  id: string; // Backend returns "id" not "taskId"
   processId: string;
   title: string;
   description: string;

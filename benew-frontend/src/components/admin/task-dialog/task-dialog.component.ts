@@ -87,7 +87,7 @@ export class TaskDialogComponent {
       };
 
       this.templateService
-        .updateTemplateTask(this.data.templateId, this.data.task.taskId, updateData)
+        .updateTemplateTask(this.data.templateId, this.data.task.id, updateData)
         .subscribe({
           next: (task) => {
             this.dialogRef.close(task);
