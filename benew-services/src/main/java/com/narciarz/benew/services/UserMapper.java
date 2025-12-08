@@ -22,7 +22,11 @@ import org.mapstruct.ReportingPolicy;
  *   <li>Password hashing is handled by the service layer</li>
  * </ul>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring", 
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface UserMapper {
     
     /**
