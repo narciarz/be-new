@@ -15,16 +15,35 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        <h3>Jak zaimportować szablon onboardingowy?</h3>
         <ol>
-          <li>Pobierz szablon CSV używając przycisku poniżej</li>
-          <li>Wypełnij szablon danymi onboardingowymi</li>
+          <li>Pobierz przykładowy szablon CSV używając przycisku poniżej</li>
+          <li>Otwórz plik w edytorze (Excel, Google Sheets, Notatnik)</li>
           <li>
-            Plik powinien zawierać kolumny: position_name, title, description, task_order,
-            owner_role
+            <strong>Format pliku CSV:</strong>
+            <ul>
+              <li>Pierwsza linia zawiera nagłówki kolumn</li>
+              <li>Każda kolejna linia to jedno zadanie dla stanowiska</li>
+            </ul>
           </li>
-          <li>Pierwszy wiersz to nazwa stanowiska</li>
-          <li>Kolejne wiersze to zadania dla tego stanowiska</li>
-          <li>Prześlij wypełniony plik CSV</li>
+          <li>
+            <strong>Wymagane kolumny (w tej kolejności):</strong>
+            <ul>
+              <li><code>position_name</code> - nazwa stanowiska (np. "IT DevOps")</li>
+              <li><code>task_order</code> - kolejność zadania (liczba: 1, 2, 3...)</li>
+              <li><code>task_title</code> - tytuł zadania</li>
+              <li><code>task_description</code> - opis zadania (opcjonalnie)</li>
+              <li><code>owner_role</code> - kto wykonuje zadanie: <strong>USER</strong> lub <strong>MANAGER</strong></li>
+            </ul>
+          </li>
+          <li>
+            <strong>Właściciel zadania (owner_role):</strong>
+            <ul class="owner-role-list">
+              <li><code class="owner-role-code">USER</code> - zadanie wykonywane przez nowego pracownika</li>
+              <li><code class="owner-role-code">MANAGER</code> - zadanie wykonywane przez menedżera</li>
+            </ul>
+          </li>
+          <li>Zapisz plik i prześlij go za pomocą przycisku powyżej</li>
         </ol>
 
         <div class="download-section">
@@ -95,13 +114,10 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <pre class="csv-example">
-position_name
-Software Engineer
-title,description,task_order,owner_role
-Setup workstation,Install required software,1,USER
-Meet the team,Introduction meeting,2,MANAGER
-Review codebase,Familiarize with repositories,3,USER</pre
+        <pre class="csv-example">position_name,task_order,task_title,task_description,owner_role
+IT DevOps,1,Workspace - laptop,Laptop configuration,USER
+IT DevOps,2,Team introduction,Meet with the team,MANAGER
+IT DevOps,3,Review codebase,Familiarize with repositories,USER</pre
         >
       </mat-card-content>
     </mat-card>

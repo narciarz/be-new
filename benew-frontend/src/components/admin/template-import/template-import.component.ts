@@ -81,21 +81,28 @@ export class TemplateImportComponent {
 
   onDownloadTemplate(): void {
     console.log('Download template clicked');
-    // TODO: Generate and download sample CSV template
+    
+    // Generate sample CSV template with correct format:
+    // Header: position_name,task_order,task_title,task_description,owner_role
+    // Data rows: one task per line with position name repeated
     const csvContent = `position_name,task_order,task_title,task_description,owner_role
-Software Developer,1,Setup workstation,Install required software and tools,USER
-Software Developer,2,Meet the team,Introduction meeting with all team members,MANAGER
-Software Developer,3,Review codebase,Familiarize yourself with repositories,USER`;
+IT DevOps,1,Workspace - laptop,Laptop configuration,USER
+IT DevOps,2,Team introduction,Meet with the team and department members,MANAGER
+IT DevOps,3,Review codebase,Familiarize with repositories and projects,USER
+IT DevOps,4,Security training,Complete security awareness training,USER
+IT DevOps,5,Tools setup,Install and configure development tools,USER`;
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'template_sample.csv');
+    link.setAttribute('download', 'onboarding_template_example.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    console.log('Template downloaded successfully');
   }
 
   onReset(): void {

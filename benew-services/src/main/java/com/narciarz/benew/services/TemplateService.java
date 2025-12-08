@@ -261,11 +261,16 @@ public class TemplateService {
      * 
      * <p>CSV format expected:</p>
      * <ul>
-     *   <li>First line: "position_name"</li>
-     *   <li>Second line: actual position name value</li>
-     *   <li>Third line: "title,description,task_order,owner_role" (header)</li>
-     *   <li>Subsequent lines: task data rows</li>
+     *   <li>First line: "position_name,task_order,task_title,task_description,owner_role" (header)</li>
+     *   <li>Subsequent lines: task data with position name repeated for each task</li>
      * </ul>
+     * 
+     * <p>Example:</p>
+     * <pre>
+     * position_name,task_order,task_title,task_description,owner_role
+     * IT DevOps,1,Workspace setup,Configure laptop and tools,USER
+     * IT DevOps,2,Team meeting,Meet with the team,MANAGER
+     * </pre>
      * 
      * <p>Validation includes:</p>
      * <ul>
@@ -304,14 +309,32 @@ public class TemplateService {
                 rows = csvReader.readAll();
             }
 
-            // Validate minimum rows (position header, position value, task header, at least 1 task)
-            if (rows.size() < 4) {
+            // Validate minimum rows (header + at least 1 task)
+            if (rows.size() < 2) {
                 throw new CsvImportException(
-                    "CSV file must contain at least 4 rows: position_name header, position value, task header, and at least one task");
+                    "CSV file must contain at least 2 rows: header and at least one task");
             }
             
-            // Extract and validate position name
-            String positionName = extractPositionName(rows);
+            // Validate header
+            String[] header = rows.get(0);
+            validateNewFormatHeader(header);
+            
+            // Extract position name from first data row
+            if (rows.size() < 2 || isEmptyRow(rows.get(1))) {
+                throw new CsvImportException("CSV file must contain at least one task row");
+            }
+            
+            String positionName = rows.get(1)[0].trim();
+            if (positionName.isEmpty()) {
+                throw new CsvImportException("Position name is required in the first data row");
+            }
+            
+            // Validate position name length
+            if (positionName.length() > 50) {
+                throw new CsvImportException(
+                    "Position name exceeds maximum length of 50 characters: " + positionName
+                );
+            }
             
             // Validate position name uniqueness
             String normalizedName = normalizePositionName(positionName);
@@ -326,14 +349,9 @@ public class TemplateService {
             Template savedTemplate = templateRepository.save(template);
             log.info("Created template with id: {} for position: {}", savedTemplate.getId(), normalizedName);
             
-            // Extract and validate task header
-            int taskHeaderIndex = 2;
-            String[] taskHeader = rows.get(taskHeaderIndex);
-            validateTaskHeader(taskHeader);
-            
             // Parse and create tasks
             List<TemplateTask> tasks = new ArrayList<>();
-            for (int i = taskHeaderIndex + 1; i < rows.size(); i++) {
+            for (int i = 1; i < rows.size(); i++) {
                 String[] row = rows.get(i);
                 
                 // Skip empty rows
@@ -341,7 +359,7 @@ public class TemplateService {
                     continue;
                 }
                 
-                TemplateTask task = parseTaskFromRow(row, savedTemplate, i + 1);
+                TemplateTask task = parseTaskFromNewFormatRow(row, savedTemplate, i + 1);
                 tasks.add(task);
             }
             
@@ -448,7 +466,7 @@ public class TemplateService {
     }
     
     /**
-     * Validates task header row.
+     * Validates task header row (OLD FORMAT - kept for backward compatibility).
      * 
      * @param header the header row
      * @throws CsvImportException if header is invalid
@@ -475,7 +493,120 @@ public class TemplateService {
     }
     
     /**
-     * Parses a task from a CSV row.
+     * Validates NEW FORMAT header row.
+     * 
+     * @param header the header row
+     * @throws CsvImportException if header is invalid
+     */
+    private void validateNewFormatHeader(String[] header) {
+        if (header.length < 5) {
+            throw new CsvImportException(
+                "CSV header must contain 5 columns: position_name, task_order, task_title, task_description, owner_role"
+            );
+        }
+        
+        // Check required columns (case-insensitive)
+        String[] requiredColumns = {"position_name", "task_order", "task_title", "task_description", "owner_role"};
+        for (int i = 0; i < requiredColumns.length; i++) {
+            String actual = header[i].trim().toLowerCase();
+            String expected = requiredColumns[i].toLowerCase();
+            if (!actual.equals(expected)) {
+                throw new CsvImportException(
+                    String.format("Column %d must be '%s', found: '%s'", 
+                        i + 1, requiredColumns[i], header[i])
+                );
+            }
+        }
+        
+        log.debug("New format header validation passed");
+    }
+    
+    /**
+     * Parses a task from a CSV row in NEW FORMAT.
+     * Row format: position_name, task_order, task_title, task_description, owner_role
+     * 
+     * @param row the CSV row
+     * @param template the parent template
+     * @param rowNumber the row number (for error messages)
+     * @return parsed TemplateTask
+     * @throws CsvImportException if row data is invalid
+     */
+    private TemplateTask parseTaskFromNewFormatRow(String[] row, Template template, int rowNumber) {
+        if (row.length < 5) {
+            throw new CsvImportException(
+                String.format("Row %d must contain 5 columns (position_name, task_order, task_title, task_description, owner_role)", 
+                    rowNumber)
+            );
+        }
+        
+        // Extract fields - skip position_name (column 0) as we already have the template
+        String taskOrderStr = row[1] != null ? row[1].trim() : "";
+        String title = row[2] != null ? row[2].trim() : "";
+        String description = row[3] != null ? row[3].trim() : "";
+        String ownerRoleStr = row[4] != null ? row[4].trim() : "";
+        
+        // Validate title (required)
+        if (title.isEmpty()) {
+            throw new CsvImportException(
+                String.format("Row %d: task_title is required", rowNumber)
+            );
+        }
+        
+        if (title.length() > 255) {
+            throw new CsvImportException(
+                String.format("Row %d: task_title exceeds maximum length of 255 characters", rowNumber)
+            );
+        }
+        
+        // Validate description length (optional field)
+        if (description != null && description.length() > 500) {
+            throw new CsvImportException(
+                String.format("Row %d: task_description exceeds maximum length of 500 characters", rowNumber)
+            );
+        }
+        
+        // Parse and validate task_order
+        int taskOrder;
+        try {
+            taskOrder = Integer.parseInt(taskOrderStr);
+            if (taskOrder < 1) {
+                throw new CsvImportException(
+                    String.format("Row %d: task_order must be a positive number, found: %d", 
+                        rowNumber, taskOrder)
+                );
+            }
+        } catch (NumberFormatException e) {
+            throw new CsvImportException(
+                String.format("Row %d: task_order must be a valid number, found: '%s'", 
+                    rowNumber, taskOrderStr)
+            );
+        }
+        
+        // Parse and validate owner_role
+        TaskOwnerRole ownerRole;
+        try {
+            ownerRole = TaskOwnerRole.valueOf(ownerRoleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new CsvImportException(
+                String.format("Row %d: Invalid owner_role '%s'. Allowed values: USER, MANAGER", 
+                    rowNumber, ownerRoleStr)
+            );
+        }
+        
+        // Create and return task
+        TemplateTask task = new TemplateTask();
+        task.setTemplate(template);
+        task.setTitle(title);
+        task.setDescription(description.isEmpty() ? null : description);
+        task.setTaskOrder(taskOrder);
+        task.setOwnerRole(ownerRole);
+        
+        log.debug("Parsed task: order={}, title={}, ownerRole={}", taskOrder, title, ownerRole);
+        return task;
+    }
+    
+    /**
+     * Parses a task from a CSV row (OLD FORMAT - kept for backward compatibility).
      * 
      * @param row the CSV row
      * @param template the parent template
