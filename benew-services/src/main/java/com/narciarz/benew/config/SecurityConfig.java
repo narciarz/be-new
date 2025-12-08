@@ -1,6 +1,7 @@
 package com.narciarz.benew.config;
 
 import com.narciarz.benew.services.JwtService;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -166,6 +167,19 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // Static frontend assets (Angular build served from classpath:/static)
+                        .requestMatchers(
+                                "/",
+                                "/*.js",
+                                "/*.css",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/manifest.webmanifest",
+                                "/assets/**",
+                                "/static/**"
+                        ).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         
                         // User management endpoints
                         .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
