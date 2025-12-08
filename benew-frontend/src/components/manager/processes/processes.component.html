@@ -1,0 +1,153 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>assignment_ind</mat-icon>
+      Procesy wdrożeniowe
+    </h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie procesów...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </mat-card>
+  } @else {
+    <mat-tab-group class="processes-tabs">
+      <mat-tab label="Aktywne">
+        @if (activeProcesses().length === 0) {
+          <div class="empty-state">
+            <mat-icon>assignment_ind</mat-icon>
+            <p>Brak aktywnych procesów</p>
+          </div>
+        } @else {
+          <div class="processes-grid">
+            @for (process of activeProcesses(); track process.processId) {
+          <mat-card class="process-card">
+            <mat-card-header>
+              <mat-card-title>{{ process.userName }}</mat-card-title>
+              <mat-card-subtitle>{{ process.position }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="process-info">
+                <div class="info-item">
+                  <mat-icon>event</mat-icon>
+                  <div>
+                    <span class="info-label">Data rozpoczęcia</span>
+                    <span class="info-value">{{ process.startDate }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <mat-icon>schedule</mat-icon>
+                  <div>
+                    <span class="info-label">Ostatnia aktywność</span>
+                    <span class="info-value">{{ process.lastActivity }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="progress-section">
+                <div class="progress-header">
+                  <span class="progress-label">Postęp</span>
+                  <span class="progress-value">{{ process.progress }}%</span>
+                </div>
+                <mat-progress-bar mode="determinate" [value]="process.progress"></mat-progress-bar>
+              </div>
+
+              <div class="tasks-summary">
+                <mat-chip>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ process.completedTasks }} / {{ process.totalTasks }} zadań
+                </mat-chip>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-button (click)="onViewProcess(process.processId)">
+                <mat-icon>visibility</mat-icon>
+                Zobacz szczegóły
+              </button>
+              <button mat-button (click)="onArchiveProcess(process.processId)">
+                <mat-icon>archive</mat-icon>
+                Archiwizuj
+              </button>
+            </mat-card-actions>
+          </mat-card>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <mat-tab label="Ukończone">
+        @if (completedProcesses().length === 0) {
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>Brak ukończonych procesów</p>
+          </div>
+        } @else {
+          <div class="processes-grid">
+            @for (process of completedProcesses(); track process.processId) {
+          <mat-card class="process-card completed">
+            <mat-card-header>
+              <div class="completed-badge">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <mat-card-title>{{ process.userName }}</mat-card-title>
+              <mat-card-subtitle>{{ process.position }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="process-info">
+                <div class="info-item">
+                  <mat-icon>event</mat-icon>
+                  <div>
+                    <span class="info-label">Data rozpoczęcia</span>
+                    <span class="info-value">{{ process.startDate }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <mat-icon>event_available</mat-icon>
+                  <div>
+                    <span class="info-label">Data ukończenia</span>
+                    <span class="info-value">{{ process.completedDate }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <mat-icon>timelapse</mat-icon>
+                  <div>
+                    <span class="info-label">Czas trwania</span>
+                    <span class="info-value">{{ process.duration }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tasks-summary">
+                <mat-chip class="completed-chip">
+                  <mat-icon>done_all</mat-icon>
+                  {{ process.totalTasks }} zadań ukończonych
+                </mat-chip>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-button (click)="onViewProcess(process.processId)">
+                <mat-icon>visibility</mat-icon>
+                Zobacz szczegóły
+              </button>
+            </mat-card-actions>
+          </mat-card>
+            }
+          </div>
+        }
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

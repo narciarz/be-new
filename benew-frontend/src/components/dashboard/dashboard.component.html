@@ -18,50 +18,50 @@
         <h3 mat-subheader>Menu</h3>
 
         @if (currentUser()?.role === UserRole.ADMIN) {
-          <a mat-list-item>
-            <mat-icon matListItemIcon>people</mat-icon>
+          <a mat-list-item routerLink="/dashboard/admin/users" routerLinkActive="active">
+            <mat-icon matListItemIcon>supervisor_account</mat-icon>
             <span matListItemTitle>Zarządzanie użytkownikami</span>
           </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>description</mat-icon>
+          <a mat-list-item routerLink="/dashboard/admin/templates" routerLinkActive="active">
+            <mat-icon matListItemIcon>rule</mat-icon>
             <span matListItemTitle>Szablony</span>
           </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>upload_file</mat-icon>
+          <a mat-list-item routerLink="/dashboard/admin/import" routerLinkActive="active">
+            <mat-icon matListItemIcon>cloud_upload</mat-icon>
             <span matListItemTitle>Import CSV</span>
           </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>assignment</mat-icon>
+          <a mat-list-item routerLink="/dashboard/admin/onboarding" routerLinkActive="active">
+            <mat-icon matListItemIcon>assignment_turned_in</mat-icon>
             <span matListItemTitle>Wszystkie wdrożenia</span>
           </a>
         }
 
         @if (currentUser()?.role === UserRole.MANAGER) {
-          <a mat-list-item>
-            <mat-icon matListItemIcon>dashboard</mat-icon>
+          <a mat-list-item routerLink="/dashboard/manager/overview" routerLinkActive="active">
+            <mat-icon matListItemIcon>assessment</mat-icon>
             <span matListItemTitle>Dashboard</span>
           </a>
-          <a mat-list-item>
+          <a mat-list-item routerLink="/dashboard/manager/team" routerLinkActive="active">
             <mat-icon matListItemIcon>group</mat-icon>
             <span matListItemTitle>Mój zespół</span>
           </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>assignment</mat-icon>
+          <a mat-list-item routerLink="/dashboard/manager/processes" routerLinkActive="active">
+            <mat-icon matListItemIcon>assignment_ind</mat-icon>
             <span matListItemTitle>Procesy wdrożeniowe</span>
           </a>
-          <a mat-list-item>
+          <a mat-list-item routerLink="/dashboard/manager/archive" routerLinkActive="active">
             <mat-icon matListItemIcon>archive</mat-icon>
             <span matListItemTitle>Archiwum</span>
           </a>
         }
 
         @if (currentUser()?.role === UserRole.USER) {
-          <a mat-list-item>
-            <mat-icon matListItemIcon>checklist</mat-icon>
+          <a mat-list-item routerLink="/dashboard/user/checklist" routerLinkActive="active">
+            <mat-icon matListItemIcon>check_circle</mat-icon>
             <span matListItemTitle>Moja checklista</span>
           </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>info</mat-icon>
+          <a mat-list-item routerLink="/dashboard/user/info" routerLinkActive="active">
+            <mat-icon matListItemIcon>help</mat-icon>
             <span matListItemTitle>Informacje</span>
           </a>
         }
@@ -69,42 +69,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content class="main-content">
-      <div class="content-wrapper">
-        <h1>Witaj w Be New!</h1>
-        
-        @if (currentUser(); as user) {
-          <mat-card class="welcome-card">
-            <mat-card-header>
-              <mat-card-title>Panel {{ user.role }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <p>Witaj, <strong>{{ user.firstName }} {{ user.lastName }}</strong>!</p>
-              
-              @if (user.role === UserRole.ADMIN) {
-                <p>
-                  Jako administrator masz pełny dostęp do systemu. Możesz zarządzać
-                  użytkownikami, tworzyć i edytować szablony oraz monitorować wszystkie
-                  procesy wdrożeniowe.
-                </p>
-              }
-              
-              @if (user.role === UserRole.MANAGER) {
-                <p>
-                  Jako menedżer możesz zarządzać wdrożeniami swojego zespołu, monitorować
-                  postępy i aktualizować statusy zadań.
-                </p>
-              }
-              
-              @if (user.role === UserRole.USER) {
-                <p>
-                  Witaj w procesie wdrożeniowym! W zakładce "Moja checklista" znajdziesz
-                  wszystkie zadania, które musisz wykonać.
-                </p>
-              }
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
+      <router-outlet></router-outlet>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

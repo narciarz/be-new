@@ -44,7 +44,9 @@
 }
 
 .logo-icon {
-  font-size: 8rem;
+  font-size: 8rem !important;
+  width: 8rem !important;
+  height: 8rem !important;
   color: #ffc72c;
   filter: drop-shadow(0 10px 30px rgba(255, 199, 44, 0.3));
   margin-bottom: 1rem;
@@ -218,7 +220,9 @@ mat-spinner {
   }
 
   .logo-icon {
-    font-size: 5rem;
+    font-size: 5rem !important;
+    width: 5rem !important;
+    height: 5rem !important;
   }
 
   .logo-text {

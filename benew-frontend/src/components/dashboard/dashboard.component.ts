@@ -1,5 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,8 @@ import { UserRole } from '../../models';
 @Component({
   selector: 'app-dashboard',
   imports: [
+    RouterLink,
+    RouterOutlet,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,

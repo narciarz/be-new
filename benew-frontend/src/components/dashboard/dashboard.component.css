@@ -81,6 +81,12 @@
   transform: translateX(4px);
 }
 
+.sidenav a[mat-list-item].active {
+  background-color: rgba(255, 199, 44, 0.2) !important;
+  color: #ffc72c !important;
+  border-left: 3px solid #ffc72c;
+}
+
 ::ng-deep .sidenav a[mat-list-item] .mat-icon {
   color: #ffc72c !important;
 }

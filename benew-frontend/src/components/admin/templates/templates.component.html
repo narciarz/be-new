@@ -1,0 +1,106 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>rule</mat-icon>
+      Szablony onboardingowe
+    </h1>
+    <button mat-raised-button color="primary" (click)="onAddTemplate()">
+      <mat-icon>add</mat-icon>
+      Nowy szablon
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie szablonów...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-raised-button color="primary" (click)="ngOnInit()">Spróbuj ponownie</button>
+    </mat-card>
+  } @else if (templates().length === 0) {
+    <mat-card class="empty-card">
+      <mat-icon>rule</mat-icon>
+      <p>Brak szablonów. Dodaj pierwszy szablon!</p>
+    </mat-card>
+  } @else {
+    <div class="templates-grid">
+      @for (template of templates(); track template.templateId) {
+      <mat-card class="template-card">
+        <mat-card-header>
+          <mat-card-title>{{ template.positionName }}</mat-card-title>
+          <mat-card-subtitle>{{ template.description }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="template-stats">
+            <mat-chip-set>
+              <mat-chip>
+                <mat-icon>check_circle</mat-icon>
+                {{ template.tasksCount }} zadań
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <mat-accordion class="tasks-accordion">
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Zadania</mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <mat-list>
+                @for (task of template.tasks; track task.taskId) {
+                  <mat-list-item>
+                    <span matListItemTitle>{{ task.taskOrder }}. {{ task.title }}</span>
+                    <span matListItemLine class="task-owner">
+                      Właściciel: {{ task.ownerRole }}
+                    </span>
+                    <div matListItemMeta class="task-actions">
+                      <button
+                        mat-icon-button
+                        (click)="onEditTask(template.templateId, task.taskId)"
+                        title="Edytuj"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        (click)="onDeleteTask(template.templateId, task.taskId)"
+                        title="Usuń"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                }
+              </mat-list>
+
+              <div class="add-task-button">
+                <button mat-button (click)="onAddTask(template.templateId)">
+                  <mat-icon>add</mat-icon>
+                  Dodaj zadanie
+                </button>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button (click)="onEditTemplate(template.templateId)">
+            <mat-icon>edit</mat-icon>
+            Edytuj
+          </button>
+          <button mat-button (click)="onDeleteTemplate(template.templateId)">
+            <mat-icon>delete</mat-icon>
+            Usuń
+          </button>
+        </mat-card-actions>
+      </mat-card>
+      }
+    </div>
+  }
+</div>

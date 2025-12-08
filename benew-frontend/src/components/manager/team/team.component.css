@@ -1,0 +1,256 @@
+.page-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  color: #ffc72c;
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(255, 199, 44, 0.3);
+}
+
+.page-header h1 mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: #ffc72c;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.loading-container mat-spinner {
+  margin-bottom: 1rem;
+}
+
+.loading-container p {
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+.error-card,
+.empty-card {
+  background: rgba(45, 45, 45, 0.8) !important;
+  border: 2px solid rgba(255, 199, 44, 0.2) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+  text-align: center;
+  padding: 3rem;
+}
+
+.error-card {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.error-card mat-icon {
+  color: #ef4444;
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-card mat-icon {
+  color: #ffc72c;
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-card p,
+.empty-card p {
+  color: #e0e0e0;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.member-card {
+  background: rgba(45, 45, 45, 0.8) !important;
+  border: 2px solid rgba(255, 199, 44, 0.2) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.member-card:hover {
+  border-color: rgba(255, 199, 44, 0.4) !important;
+  transform: translateY(-4px);
+}
+
+.member-card.completed {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+::ng-deep .member-card .mat-mdc-card-header {
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 199, 44, 0.1);
+  padding-bottom: 1rem;
+}
+
+.member-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 199, 44, 0.1);
+  border: 2px solid rgba(255, 199, 44, 0.3);
+}
+
+.member-avatar mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: #ffc72c;
+}
+
+::ng-deep .member-card .mat-mdc-card-title {
+  color: #ffc72c !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+::ng-deep .member-card .mat-mdc-card-subtitle {
+  color: #a0a0a0 !important;
+  font-size: 0.9rem;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.info-row mat-icon {
+  color: #ffc72c;
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.progress-section {
+  margin-bottom: 1rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  color: #a0a0a0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-value {
+  color: #ffc72c;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffc72c 0%, #da9100 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.status-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.status-chip {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+.status-chip.active {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+}
+
+.status-chip.completed {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(34, 197, 94, 0.4) !important;
+}
+
+::ng-deep .status-chip mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+::ng-deep .member-card mat-card-actions {
+  border-top: 1px solid rgba(255, 199, 44, 0.1);
+  padding-top: 1rem;
+  justify-content: center;
+}
+
+::ng-deep .member-card mat-card-actions button {
+  color: #ffc72c !important;
+}
+
+::ng-deep .member-card mat-card-actions button:hover {
+  background: rgba(255, 199, 44, 0.1) !important;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}

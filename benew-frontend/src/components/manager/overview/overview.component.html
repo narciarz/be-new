@@ -1,0 +1,89 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>assessment</mat-icon>
+      Dashboard
+    </h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Ładowanie danych...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="error-card">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </mat-card>
+  } @else {
+    <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>group</mat-icon>
+        </div>
+        <div class="stat-value">{{ stats().totalTeamMembers }}</div>
+        <div class="stat-label">Członków zespołu</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon active">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-value">{{ stats().activeOnboarding }}</div>
+        <div class="stat-label">Aktywne wdrożenia</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon completed">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-value">{{ stats().completedOnboarding }}</div>
+        <div class="stat-label">Ukończone</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <div class="stat-value">{{ stats().averageProgress }}%</div>
+        <div class="stat-label">Średni postęp</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="content-grid">
+    <mat-card class="team-progress-card">
+      <mat-card-header>
+        <mat-card-title>Postęp zespołu</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="progress-list">
+          @for (member of teamProgress(); track member.name) {
+            <div class="progress-item">
+              <div class="progress-info">
+                <div class="member-name">{{ member.name }}</div>
+                <div class="member-position">{{ member.position }}</div>
+              </div>
+              <div class="progress-bar-container">
+                <mat-progress-bar mode="determinate" [value]="member.progress"></mat-progress-bar>
+                <span class="progress-text">{{ member.progress }}%</span>
+              </div>
+              <div class="tasks-left">
+                <mat-chip>{{ member.tasksLeft }} zadań</mat-chip>
+              </div>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+    </div>
+  }
+</div>
