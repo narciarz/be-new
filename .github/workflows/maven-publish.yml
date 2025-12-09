@@ -69,7 +69,7 @@ jobs:
         port: ${{ secrets.MIKRUS_PORT || 22 }}
         script: |
           echo "Restarting application..."
-          cd ~/apps2
+          cd ~/app2
 
           # Stop current application
           sh stop.sh
