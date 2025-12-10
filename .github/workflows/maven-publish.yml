@@ -82,14 +82,9 @@ jobs:
           echo "Installing db changes..."
           cd ~/app2/liquibase
           dir
-          liquibase \
-                  --changelog-file=liquibase/changelog-master.xml \
-                  --url="$DB_URL" \
-                  --username="$DB_USER" \
-                  --password="$DB_PASS" \
-                  --classpath=postgresql.jar
-                  update
-
+          liquibase --changelog-file=liquibase/changelog-master.xml --url="$DB_URL" --username="$DB_USER" --password="$DB_PASS" --classpath=postgresql.jar update
+          cd ~/app2
+          rm -Rf liquibase
     - name: Restart application on server
       uses: appleboy/ssh-action@v1.2.0
       with:
