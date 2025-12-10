@@ -103,8 +103,7 @@ jobs:
           echo "❌ Application failed to start within 60s"
           
           # Print logs to see why it failed
-          tail -n 20 app.log
-          ś
+          tail -n 20 log/app.log
           exit 1
     - name: Deployment Status
       if: success()
