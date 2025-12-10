@@ -298,14 +298,14 @@ public class UserService {
     public UserResponseDto createUser(CreateUserRequestDto dto) {
         log.info("Creating new user with email: {}", dto.getEmail());
         
-        UUID currentUserId = getCurrentUserId();
-        UserRole currentUserRole = getCurrentUserRole();
+//        UUID currentUserId = getCurrentUserId();
+//        UserRole currentUserRole = getCurrentUserRole();
         
-        // MANAGER can only create users with USER role
-        if (currentUserRole == UserRole.MANAGER && dto.getRole() != UserRole.USER) {
-            log.warn("Manager {} attempted to create user with role: {}", currentUserId, dto.getRole());
-            throw new IllegalArgumentException("Managers can only create users with USER role");
-        }
+//        // MANAGER can only create users with USER role
+//        if (currentUserRole == UserRole.MANAGER && dto.getRole() != UserRole.USER) {
+//            log.warn("Manager {} attempted to create user with role: {}", currentUserId, dto.getRole());
+//            throw new IllegalArgumentException("Managers can only create users with USER role");
+//        }
         
         // Validate email uniqueness
         if (userRepository.existsByEmailIgnoreCase(dto.getEmail())) {
@@ -326,21 +326,21 @@ public class UserService {
         }
         
         // Set manager based on current user role
-        if (currentUserRole == UserRole.MANAGER) {
+//        if (currentUserRole == UserRole.MANAGER) {
             // MANAGER creates users assigned to themselves, ignore managerId from DTO
-            AppUser manager = userRepository.findById(currentUserId)
-                    .orElseThrow(() -> new IllegalStateException("Current user not found"));
-            user.setManager(manager);
-            log.debug("Automatically assigned manager {} to new user created by MANAGER", currentUserId);
-        } else {
-            // ADMIN can specify manager
-            if (dto.getManagerId() != null) {
-                AppUser manager = userRepository.findById(dto.getManagerId())
-                        .orElseThrow(() -> new InvalidManagerException(dto.getManagerId()));
-                user.setManager(manager);
-                log.debug("Assigned manager {} to new user", dto.getManagerId());
-            }
-        }
+//            AppUser manager = userRepository.findById(currentUserId)
+//                    .orElseThrow(() -> new IllegalStateException("Current user not found"));
+//            user.setManager(manager);
+//            log.debug("Automatically assigned manager {} to new user created by MANAGER", currentUserId);
+//        } else {
+//            // ADMIN can specify manager
+//            if (dto.getManagerId() != null) {
+//                AppUser manager = userRepository.findById(dto.getManagerId())
+//                        .orElseThrow(() -> new InvalidManagerException(dto.getManagerId()));
+//                user.setManager(manager);
+//                log.debug("Assigned manager {} to new user", dto.getManagerId());
+//            }
+//        }
         
         // Save user
         AppUser savedUser = userRepository.save(user);
