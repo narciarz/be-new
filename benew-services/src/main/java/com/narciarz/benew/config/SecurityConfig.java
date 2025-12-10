@@ -211,7 +211,8 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/api/users/**"
                         ).permitAll()
 
                         // Static frontend assets (Angular build served from classpath:/static)
@@ -227,8 +228,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         
-                        // User management endpoints
-                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
+//                        // User management endpoints
+//                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
                         
                         // Template management endpoints (admin only)
                         .requestMatchers("/api/templates/**").hasRole("ADMIN")
