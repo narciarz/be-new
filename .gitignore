@@ -1,2 +1,5 @@
 # IDE specific
 /.idea/
+
+#MacOs
+.DS_Store
