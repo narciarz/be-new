@@ -64,15 +64,29 @@ jobs:
         strip_components: 1
     - name: Install DB changes
       uses: appleboy/ssh-action@v1.2.0
+      env:
+        # Map GitHub Secrets to Step Environment Variables
+        LIQUIBASE_DB_URL: ${{ secrets.MIKRUS_DB_URL }}
+        LIQUIBASE_DB_USER: ${{ secrets.MIKRUS_DB_USER }}
+        LIQUIBASE_DB_PASS: ${{ secrets.MIKRUS_DB_PASS }}
       with:
         host: ${{ secrets.MIKRUS_HOST }}
         username: ${{ secrets.MIKRUS_USER }}
         key: ${{ secrets.MIKRUS_SSH_KEY }}
         port: ${{ secrets.MIKRUS_PORT || 22 }}
+        # pass these variables to the remote script
+        envs: LIQUIBASE_DB_URL,LIQUIBASE_DB_USER,LIQUIBASE_DB_PASS
         script: |
           echo "Installing db changes..."
-          cd ~/app2
+          cd ~/app2/liquibase
           dir
+          liquibase \
+                  --changelog-file=liquibase/changelog-master.xml \
+                  --url="$LIQUIBASE_DB_URL" \
+                  --username="$LIQUIBASE_DB_USER" \
+                  --password="$LIQUIBASE_DB_PASS" \
+                  update
+
     - name: Restart application on server
       uses: appleboy/ssh-action@v1.2.0
       with:
