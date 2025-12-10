@@ -61,6 +61,17 @@ jobs:
         source: "deploy/*"
         target: "~/app2/"
         strip_components: 1
+    - name: Install DB changes
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.MIKRUS_HOST }}
+        username: ${{ secrets.MIKRUS_USER }}
+        key: ${{ secrets.MIKRUS_SSH_KEY }}
+        port: ${{ secrets.MIKRUS_PORT || 22 }}
+        script: |
+          echo "Installing db changes..."
+          cd ~/app2
+          dir
     - name: Restart application on server
       uses: appleboy/ssh-action@v1.2.0
       with:
