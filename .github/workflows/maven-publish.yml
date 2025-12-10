@@ -50,6 +50,8 @@ jobs:
         cp scripts/stop.sh deploy/stop.sh
         mkdir -p deploy/liquibase
         cp -R liquibase/* deploy/liquibase
+        echo "===Downloading jdbc driver==="
+        wget -O deploy/liquibase/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
         ls -lh deploy/
         echo "JAR file and others prepared for deployment"
     - name: Deploy to Mikr.us via SCP
@@ -66,25 +68,26 @@ jobs:
       uses: appleboy/ssh-action@v1.2.0
       env:
         # Map GitHub Secrets to Step Environment Variables
-        LIQUIBASE_DB_URL: ${{ secrets.MIKRUS_DB_URL }}
-        LIQUIBASE_DB_USER: ${{ secrets.MIKRUS_DB_USER }}
-        LIQUIBASE_DB_PASS: ${{ secrets.MIKRUS_DB_PASS }}
+        DB_URL: ${{ secrets.MIKRUS_DB_URL }}
+        DB_USER: ${{ secrets.MIKRUS_DB_USER }}
+        DB_PASS: ${{ secrets.MIKRUS_DB_PASS }}
       with:
         host: ${{ secrets.MIKRUS_HOST }}
         username: ${{ secrets.MIKRUS_USER }}
         key: ${{ secrets.MIKRUS_SSH_KEY }}
         port: ${{ secrets.MIKRUS_PORT || 22 }}
         # pass these variables to the remote script
-        envs: LIQUIBASE_DB_URL,LIQUIBASE_DB_USER,LIQUIBASE_DB_PASS
+        envs: DB_URL,DB_USER,DB_PASS
         script: |
           echo "Installing db changes..."
           cd ~/app2/liquibase
           dir
           liquibase \
                   --changelog-file=liquibase/changelog-master.xml \
-                  --url="$LIQUIBASE_DB_URL" \
-                  --username="$LIQUIBASE_DB_USER" \
-                  --password="$LIQUIBASE_DB_PASS" \
+                  --url="$DB_URL" \
+                  --username="$DB_USER" \
+                  --password="$DB_PASS" \
+                  --classpath=postgresql.jar
                   update
 
     - name: Restart application on server
