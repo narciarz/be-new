@@ -48,7 +48,8 @@ jobs:
         cp benew-services/target/benew-services-*.jar deploy/benew-app.jar
         cp scripts/start.sh deploy/start.sh
         cp scripts/stop.sh deploy/stop.sh
-        cp -R liquibase/* deploy/
+        mkdir -p deploy/liquibase
+        cp -R liquibase/* deploy/liquibase
         ls -lh deploy/
         echo "JAR file and others prepared for deployment"
     - name: Deploy to Mikr.us via SCP
