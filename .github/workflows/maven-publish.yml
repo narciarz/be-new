@@ -105,7 +105,7 @@ jobs:
           end=$((SECONDS+60)) # Timeout after 60 seconds
 
           while [ $SECONDS -lt $end ]; do
-            if curl -s "http://localhost:8080/actuator/health" | grep -q '"status":"UP"'; then
+            if curl -s "http://localhost:40493/actuator/health" | grep -q '"status":"UP"'; then
               echo "✅ Application is UP"
               exit 0
             fi
