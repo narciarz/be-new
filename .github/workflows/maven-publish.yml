@@ -56,10 +56,21 @@ jobs:
         username: ${{ secrets.MIKRUS_USER }}
         key: ${{ secrets.MIKRUS_SSH_KEY }}
         port: ${{ secrets.MIKRUS_PORT || 22 }}
-        source: "deploy/benew-app.jar"
+        source: "deploy/*"
         target: "~/app2/"
         strip_components: 1
-
+    - name: Pre steps
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.MIKRUS_HOST }}
+        username: ${{ secrets.MIKRUS_USER }}
+        key: ${{ secrets.MIKRUS_SSH_KEY }}
+        port: ${{ secrets.MIKRUS_PORT || 22 }}
+        script: |
+          ls -la ~/app2
+          cd ~/app2
+          chmod +x start.sh || echo "No start.sh found"
+          chmod +x stop.sh || echo "No stop.sh found"
     - name: Restart application on server
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -89,8 +100,3 @@ jobs:
         echo "✅ Deployment completed successfully!"
         echo "Server: ${{ secrets.MIKRUS_HOST }}"
         echo "Version: ${{ steps.get_version.outputs.VERSION }}"
-
-#    - name: Publish to GitHub Packages Apache Maven
-#      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-#      env:
-#        GITHUB_TOKEN: ${{ github.token }}
