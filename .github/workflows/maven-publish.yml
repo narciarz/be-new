@@ -87,6 +87,25 @@ jobs:
           
           # Start new version
           ./start.sh
+          
+          # Verify
+          echo "Checking Actuator Health..."
+          end=$((SECONDS+60)) # Timeout after 60 seconds
+
+          while [ $SECONDS -lt $end ]; do
+            if curl -s "http://localhost:8080/actuator/health" | grep -q '"status":"UP"'; then
+              echo "✅ Application is UP"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "❌ Application failed to start within 60s"
+          
+          # Print logs to see why it failed
+          tail -n 20 app.log
+          ś
+          exit 1
     - name: Deployment Status
       if: success()
       run: |

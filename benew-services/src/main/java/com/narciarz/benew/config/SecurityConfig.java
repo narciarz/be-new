@@ -210,7 +210,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/actuator/health"
                         ).permitAll()
 
                         // Static frontend assets (Angular build served from classpath:/static)

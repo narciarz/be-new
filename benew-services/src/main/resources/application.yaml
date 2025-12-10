@@ -11,6 +11,12 @@ spring:
 springdoc:
   swagger-ui:
     enabled: false
+  show-actuator: on
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: health
