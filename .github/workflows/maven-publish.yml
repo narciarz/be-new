@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,6 +26,8 @@ jobs:
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
+        # Native caching in setup-java is faster and cleaner than manual caching.
+        cache: 'maven'
 
     - name: Build with Maven
       run: |
@@ -59,18 +60,6 @@ jobs:
         source: "deploy/*"
         target: "~/app2/"
         strip_components: 1
-    - name: Pre steps
-      uses: appleboy/ssh-action@v1.2.0
-      with:
-        host: ${{ secrets.MIKRUS_HOST }}
-        username: ${{ secrets.MIKRUS_USER }}
-        key: ${{ secrets.MIKRUS_SSH_KEY }}
-        port: ${{ secrets.MIKRUS_PORT || 22 }}
-        script: |
-          ls -la ~/app2
-          cd ~/app2
-          chmod +x start.sh || echo "No start.sh found"
-          chmod +x stop.sh || echo "No stop.sh found"
     - name: Restart application on server
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -79,11 +68,14 @@ jobs:
         key: ${{ secrets.MIKRUS_SSH_KEY }}
         port: ${{ secrets.MIKRUS_PORT || 22 }}
         script: |
-          echo "Restarting application..."
+          echo "Connecting to server..."
           cd ~/app2
-
+          
+          # Fix permissions immediately
+          chmod +x start.sh stop.sh
+          
           # Stop current application
-          sh stop.sh
+          ./stop.sh || echo "Stop script failed or app not running"
 
           # Backup old version
           if [ -f benew-app-current.jar ]; then
@@ -93,7 +85,8 @@ jobs:
           # Deploy new version
           mv benew-app.jar benew-app-current.jar
           
-          sh start.sh
+          # Start new version
+          ./start.sh
     - name: Deployment Status
       if: success()
       run: |
