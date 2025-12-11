@@ -52,6 +52,18 @@
             </configuration>
           </execution>
 
+          <!-- run tests -->
+          <execution>
+            <id>npm run test</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>run test:ci</arguments>
+            </configuration>
+          </execution>
+
           <!-- build app -->
           <execution>
             <id>npm run build</id>
